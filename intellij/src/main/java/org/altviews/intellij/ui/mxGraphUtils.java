@@ -7,7 +7,7 @@ import com.mxgraph.view.mxGraph;
 /**
  * Created by enrico on 3/8/16.
  */
-public abstract class UIUtils {
+public abstract class mxGraphUtils {
 
     public static void translate(mxGraph graph, double x, double y) {
         final Object[] vertices = graph.getChildCells(graph.getDefaultParent(), true, false);

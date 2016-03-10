@@ -1,15 +1,14 @@
-package org.altviews.intellij.core;
+package org.altviews.core;
 
-import org.altviews.core.AVModule;
-import org.altviews.core.AVModuleDependency;
+import java.io.Serializable;
 
 /**
- * Created by enrico on 3/4/16.
+ * Created by enrico on 3/10/16.
  */
-public class AVJavaIDEADependency implements AVModuleDependency {
-    private final AVJavaIDEAModule module;
+public class AVModuleDependencyImpl implements AVModuleDependency,Serializable {
+    private final AVModule module;
 
-    public AVJavaIDEADependency(AVJavaIDEAModule module) {
+    public AVModuleDependencyImpl(AVModule module) {
         this.module = module;
     }
 
@@ -20,7 +19,7 @@ public class AVJavaIDEADependency implements AVModuleDependency {
 
     @Override
     public String toString() {
-        return module.toString();
+        return getModule().toString();
     }
 
     @Override
@@ -28,7 +27,7 @@ public class AVJavaIDEADependency implements AVModuleDependency {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        AVJavaIDEADependency that = (AVJavaIDEADependency) o;
+        AVModuleDependencyImpl that = (AVModuleDependencyImpl) o;
 
         return !(module != null ? !module.equals(that.module) : that.module != null);
 

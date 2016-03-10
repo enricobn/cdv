@@ -1,30 +1,29 @@
 package org.altviews.intellij.core;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.util.PsiClassUtil;
 import com.intellij.psi.util.PsiTypesUtil;
-import org.altviews.core.AVModule;
-import org.altviews.core.AVModuleDependency;
+import org.altviews.core.*;
+import org.altviews.intellij.AVJavaIDEAUtils;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by enrico on 3/4/16.
+ * Created by enrico on 3/10/16.
  */
-public class AVJavaIDEAModule implements AVModule {
-    private final PsiClass psiClass;
+public class AVJavaIDEADependenciesFinder implements AVDependenciesFinder {
+    private final Project project;
 
-    public AVJavaIDEAModule(PsiClass psiClass) {
-        this.psiClass = psiClass;
+    public AVJavaIDEADependenciesFinder(Project project) {
+        this.project = project;
     }
 
     @Override
-    public Set<AVModuleDependency> getDependencies() {
+    public Set<AVModuleDependency> getDependencies(AVModule module) {
+        PsiClass psiClass = AVJavaIDEAUtils.getPsiClass(project, module.getFullName());
         Set<AVModuleDependency> result = new HashSet<>();
 
         for (PsiClassType ancestor : psiClass.getExtendsListTypes()) {
@@ -55,43 +54,8 @@ public class AVJavaIDEAModule implements AVModule {
         final PsiFile[] files = FilenameIndex.getFilesByName(dep.getProject(), dep.getName() + ".java",
                 GlobalSearchScope.projectScope(dep.getProject()));
         if (files.length > 0) {
-            final AVJavaIDEAModule module = new AVJavaIDEAModule(dep);
-            result.add(new AVJavaIDEADependency(module));
+            final AVModule module = new AVModuleImpl(dep.getQualifiedName());
+            result.add(new AVModuleDependencyImpl(module));
         }
-    }
-
-    @Override
-    public String getSimpleName() {
-        return psiClass.getName();
-    }
-
-    @Override
-    public String getFullName() {
-        return psiClass.getQualifiedName();
-    }
-
-    @Override
-    public String toString() {
-        return getSimpleName();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        AVJavaIDEAModule that = (AVJavaIDEAModule) o;
-
-        return !(psiClass != null ? !psiClass.equals(that.psiClass) : that.psiClass != null);
-
-    }
-
-    @Override
-    public int hashCode() {
-        return psiClass != null ? psiClass.hashCode() : 0;
-    }
-
-    public PsiClass getPsiClass() {
-        return psiClass;
     }
 }

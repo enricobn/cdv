@@ -25,11 +25,9 @@
   -->
 
   <extensions defaultExtensionNs="com.intellij">
-    <toolWindow id="Alt view" anchor="bottom"
-                factoryClass="org.altviews.intellij.ui.AVToolWindowFactory"/>
-    <fileEditorProvider implementation="org.altviews.intellij.ui.editor.AVEditorProvider"/>
-    <fileTypeFactory implementation="org.altviews.intellij.ui.editor.AVEditorProvider"/>
-    <fileTypeFactory implementation="org.altviews.intellij.ui.editor.AVFileTypeFactory"/>
+    <fileEditorProvider implementation="org.altviews.intellij.ui.editor.AVIDEAEditorProvider"/>
+    <fileTypeFactory implementation="org.altviews.intellij.ui.editor.AVIDEAEditorProvider"/>
+    <fileTypeFactory implementation="org.altviews.intellij.ui.editor.AVIDEAFileTypeFactory"/>
   </extensions>
 
   <application-components>

@@ -1,28 +1,14 @@
-package org.altviews.intellij.ui;
+package org.altviews.intellij.ui.editor;
 
-import com.intellij.ide.util.TreeClassChooser;
-import com.intellij.ide.util.TreeClassChooserFactory;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowFactory;
-import com.intellij.psi.PsiClass;
-import com.intellij.ui.content.Content;
-import com.intellij.ui.content.ContentFactory;
-import com.intellij.uiDesigner.core.GridConstraints;
-import com.intellij.uiDesigner.core.GridLayoutManager;
-import com.mxgraph.layout.mxCompactTreeLayout;
-import com.mxgraph.layout.mxIGraphLayout;
 import com.mxgraph.layout.mxOrganicLayout;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
-import com.mxgraph.util.mxPoint;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxStylesheet;
-import org.altviews.core.AVModule;
-import org.altviews.core.AVModuleDependency;
-import org.altviews.intellij.core.AVJavaIDEAModule;
+import org.altviews.core.*;
+import org.altviews.intellij.ui.mxGraphUtils;
+import org.altviews.ui.AVClassChooser;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,51 +16,24 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Set;
+import java.util.*;
 
 /**
- * Created by enrico on 3/4/16.
+ * Created by enrico on 3/8/16.
  */
-public class AVToolWindowFactory implements ToolWindowFactory {
+public class AVGraphSwingComponent extends JPanel implements AVGraph {
     private static final String ROUNDED = "ROUNDED";
     private final Set<AVModule> modules = new HashSet<>();
-    private JPanel toolWindowContent;
-    private JButton addViewButton;
-    private JComboBox viewCombo;
-    private JButton addFileButton;
-    private JPanel modulesPanel;
-    private Project project;
-    private ToolWindow toolWindow;
-    private mxGraph graph;
+    private final Collection<AVFileEditorComponentListener> listeners = new ArrayList<>();
+    private final AVClassChooser classChooser;
+    private final AVModuleNavigator navigator;
+    private final AVDependenciesFinder finder;
+    private final mxGraph graph;
 
-    public AVToolWindowFactory() {
-        addViewButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addView();
-            }
-        });
-        addFileButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addFile();
-            }
-        });
-    }
-
-    @Override
-    public void createToolWindowContent(Project project, ToolWindow toolWindow) {
-        this.project = project;
-        this.toolWindow = toolWindow;
-        initialize();
-        ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-        Content content = contentFactory.createContent(toolWindowContent, "", false);
-        toolWindow.getContentManager().addContent(content);
-    }
-
-    private void initialize() {
+    public AVGraphSwingComponent(AVClassChooser classChooser, AVModuleNavigator navigator, AVDependenciesFinder finder) {
+        this.classChooser = classChooser;
+        this.navigator = navigator;
+        this.finder = finder;
         graph = new mxGraph() {
             public boolean isCellSelectable(Object cell)
             {
@@ -93,7 +52,7 @@ public class AVToolWindowFactory implements ToolWindowFactory {
         };
 
         graph.setDisconnectOnMove(false);
-        graph.setAutoSizeCells(true);
+//        graph.setAutoSizeCells(true);
 
         mxStylesheet stylesheet = graph.getStylesheet();
         Hashtable<String, Object> style = new Hashtable<>();
@@ -119,28 +78,83 @@ public class AVToolWindowFactory implements ToolWindowFactory {
             {
                 handleMouse(e, graphComponent);
             }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                handleMouseClicked(e, graphComponent);
+            }
         });
 
+        JButton addFileButton = new JButton("Add");
+        addFileButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addFile();
+            }
+        });
+
+        setLayout(new GridBagLayout());
+
         GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1.0;
+        gbc.weighty = 0;
+        add(addFileButton, gbc);
+
+        gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.BOTH;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        gbc.gridx = 0;
+        gbc.gridy = 1;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        modulesPanel.add(graphComponent, gbc);
+        add(graphComponent, gbc);
+    }
+
+    private void handleMouseClicked(MouseEvent e, mxGraphComponent graphComponent) {
+        if (e.getClickCount() != 2) {
+            return;
+        }
+        Object cell = graphComponent.getCellAt(e.getX(), e.getY());
+
+        if (cell != null) {
+            if (graph.getModel().isVertex(cell)) {
+                AVModule module = (AVModule) graph.getModel().getValue(cell);
+                navigator.navigateTo(module);
+            }
+        }
+    }
+
+    public void addModule(AVModule module) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                addModule(module, null);
+            }
+        });
+    }
+
+    public void addListener(AVFileEditorComponentListener listener) {
+        listeners.add(listener);
     }
 
     private void handleMouse(MouseEvent e, mxGraphComponent graphComponent) {
         if (!e.isPopupTrigger()) {
             return;
         }
+
         Object cell = graphComponent.getCellAt(e.getX(), e.getY());
-        
+
         if (cell != null)
         {
             if (graph.getModel().isVertex(cell)) {
                 JPopupMenu popup = new JPopupMenu();
                 JMenuItem item;
                 AVModule module = (AVModule) graph.getModel().getValue(cell);
-                for (AVModuleDependency dep : module.getDependencies()) {
+                for (AVModuleDependency dep : finder.getDependencies(module)) {
                     if (modules.contains(dep.getModule())) {
                         continue;
                     }
@@ -166,7 +180,12 @@ public class AVToolWindowFactory implements ToolWindowFactory {
                         } finally {
                             graph.getModel().endUpdate();
                             modules.remove(module);
-                            doLayout();
+                            doGraphLayout();
+                            repaint();
+                            for (AVFileEditorComponentListener listener : listeners) {
+                                listener.onRemove(module);
+                            }
+
                         }
                     }
                 });
@@ -176,20 +195,9 @@ public class AVToolWindowFactory implements ToolWindowFactory {
         }
     }
 
-    private void addView() {
-        final String viewName = Messages.showInputDialog(toolWindowContent, "New view", "Alt views", null);
-        if (viewName != null) {
-            viewCombo.addItem(viewName);
-        }
-    }
-
     private void addFile() {
-        final TreeClassChooser fileChooser =
-                TreeClassChooserFactory.getInstance(project).createAllProjectScopeChooser("Add class");
-        fileChooser.showDialog();
-        final PsiClass selected = fileChooser.getSelected();
-        if (selected != null) {
-            AVModule module = new AVJavaIDEAModule(selected);
+        final AVModule module = classChooser.show("Add class");
+        if (module != null) {
             if (modules.contains(module)) {
                 // TODO message
                 return;
@@ -204,7 +212,7 @@ public class AVToolWindowFactory implements ToolWindowFactory {
         graph.getModel().beginUpdate();
         try {
             // get metrics from the graphics
-            FontMetrics metrics = modulesPanel.getGraphics().getFontMetrics(modulesPanel.getFont());
+            FontMetrics metrics = getGraphics().getFontMetrics(getFont());
             // get the height of a line of text in this
             // font and render context
 //            int hgt = metrics.getHeight();
@@ -231,12 +239,12 @@ public class AVToolWindowFactory implements ToolWindowFactory {
                     continue;
                 }
 
-                for (AVModuleDependency dep : m.getDependencies()) {
+                for (AVModuleDependency dep : finder.getDependencies(m)) {
                     if (dep.getModule().equals(module)) {
                         graph.insertEdge(parent, null, null, vertex, v1);
                     }
                 }
-                for (AVModuleDependency dep : module.getDependencies()) {
+                for (AVModuleDependency dep : finder.getDependencies(module)) {
                     if (dep.getModule().equals(m)) {
                         graph.insertEdge(parent, null, null, v1, vertex);
                     }
@@ -247,58 +255,29 @@ public class AVToolWindowFactory implements ToolWindowFactory {
             graph.getModel().endUpdate();
         }
 
-        doLayout();
+        doGraphLayout();
 
         graph.setAutoSizeCells(true);
+        repaint();
+
+        for (AVFileEditorComponentListener listener : listeners) {
+            listener.onAdd(module);
+        }
+
     }
 
-    private void doLayout() {
+    private void doGraphLayout() {
         mxOrganicLayout layout = new mxOrganicLayout(graph);
 //        layout.setOptimizeEdgeDistance(false);
 //        layout.setOptimizeBorderLine(false);
 
         layout.execute(graph.getDefaultParent());
 
-        UIUtils.translate(graph, 5, 5);
+        mxGraphUtils.translate(graph, 5, 5);
     }
 
-    {
-// GUI initializer generated by IntelliJ IDEA GUI Designer
-// >>> IMPORTANT!! <<<
-// DO NOT EDIT OR ADD ANY CODE HERE!
-        $$$setupUI$$$();
-    }
-
-    /**
-     * Method generated by IntelliJ IDEA GUI Designer
-     * >>> IMPORTANT!! <<<
-     * DO NOT edit this method OR call it in your code!
-     *
-     * @noinspection ALL
-     */
-    private void $$$setupUI$$$() {
-        toolWindowContent = new JPanel();
-        toolWindowContent.setLayout(new GridLayoutManager(3, 3, new Insets(0, 0, 0, 0), -1, -1));
-        addViewButton = new JButton();
-        addViewButton.setText("Add view");
-        toolWindowContent.add(addViewButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label1 = new JLabel();
-        label1.setText("View");
-        toolWindowContent.add(label1, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        viewCombo = new JComboBox();
-        toolWindowContent.add(viewCombo, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        addFileButton = new JButton();
-        addFileButton.setText("Add file");
-        toolWindowContent.add(addFileButton, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        modulesPanel = new JPanel();
-        modulesPanel.setLayout(new GridBagLayout());
-        toolWindowContent.add(modulesPanel, new GridConstraints(2, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-    }
-
-    /**
-     * @noinspection ALL
-     */
-    public JComponent $$$getRootComponent$$$() {
-        return toolWindowContent;
+    @Override
+    public Set<AVModule> getModules() {
+        return modules;
     }
 }

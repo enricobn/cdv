@@ -10,12 +10,11 @@ import javax.swing.*;
 /**
  * Created by enrico on 3/8/16.
  */
-public class AVFileType implements FileType {
-    public static final AVFileType INSTANCE = new AVFileType();
+public class AVIDEAFileType implements FileType {
+    public static final AVIDEAFileType INSTANCE = new AVIDEAFileType();
     public static String DEFAULT_EXTENSION = "av";
 
-    private AVFileType() {
-
+    private AVIDEAFileType() {
     }
 
     @NotNull

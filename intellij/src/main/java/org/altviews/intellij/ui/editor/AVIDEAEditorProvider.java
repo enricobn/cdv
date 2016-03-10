@@ -16,20 +16,20 @@ import java.io.IOException;
 /**
  * Created by enrico on 3/8/16.
  */
-public class AVEditorProvider extends FileTypeFactory implements FileEditorProvider {
+public class AVIDEAEditorProvider extends FileTypeFactory implements FileEditorProvider {
     @Override
     public boolean accept(Project project, VirtualFile virtualFile) {
         if (virtualFile.getExtension() == null) {
             return false;
         }
-        return virtualFile.getExtension().equals(AVFileType.DEFAULT_EXTENSION);
+        return virtualFile.getExtension().equals(AVIDEAFileType.DEFAULT_EXTENSION);
     }
 
     @NotNull
     @Override
     public FileEditor createEditor(Project project, VirtualFile virtualFile) {
         try {
-            return new AVFileEditor(project, virtualFile);
+            return new AVIDEAFileEditor(project, virtualFile);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -43,7 +43,7 @@ public class AVEditorProvider extends FileTypeFactory implements FileEditorProvi
     @NotNull
     @Override
     public FileEditorState readState(@NotNull Element element, @NotNull Project project, @NotNull VirtualFile virtualFile) {
-        return new AVFileEditor.AVEditorState();
+        return new AVIDEAFileEditor.AVEditorState();
     }
 
     @Override
@@ -65,6 +65,6 @@ public class AVEditorProvider extends FileTypeFactory implements FileEditorProvi
 
     @Override
     public void createFileTypes(@NotNull FileTypeConsumer fileTypeConsumer) {
-        fileTypeConsumer.consume(AVFileType.INSTANCE, "");
+        fileTypeConsumer.consume(AVIDEAFileType.INSTANCE, "");
     }
 }

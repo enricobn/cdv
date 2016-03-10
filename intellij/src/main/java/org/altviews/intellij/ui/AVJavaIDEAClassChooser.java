@@ -4,7 +4,7 @@ import com.intellij.ide.util.TreeClassChooser;
 import com.intellij.ide.util.TreeClassChooserFactory;
 import com.intellij.openapi.project.Project;
 import org.altviews.core.AVModule;
-import org.altviews.intellij.core.AVJavaIDEAModule;
+import org.altviews.core.AVModuleImpl;
 import org.altviews.ui.AVClassChooser;
 
 /**
@@ -24,7 +24,7 @@ public class AVJavaIDEAClassChooser implements AVClassChooser {
         if (chooser.getSelected() == null) {
             return null;
         }
-        return new AVJavaIDEAModule(chooser.getSelected());
+        return new AVModuleImpl(chooser.getSelected().getQualifiedName());
 
     }
 }

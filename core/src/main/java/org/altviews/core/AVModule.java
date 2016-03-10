@@ -8,8 +8,6 @@ import java.util.Set;
  */
 public interface AVModule {
 
-    Set<AVModuleDependency> getDependencies();
-
     String getSimpleName();
 
     String getFullName();

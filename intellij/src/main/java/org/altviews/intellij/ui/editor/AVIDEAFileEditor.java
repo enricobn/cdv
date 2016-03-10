@@ -11,7 +11,8 @@ import org.altviews.core.AVGraph;
 import org.altviews.core.AVGraphFileReader;
 import org.altviews.core.AVGraphFileWriter;
 import org.altviews.core.AVModule;
-import org.altviews.intellij.core.AVJavaIDEAModuleProvider;
+import org.altviews.intellij.core.AVJavaIDEADependenciesFinder;
+import org.altviews.intellij.core.AVJavaIDEAModuleNavigator;
 import org.altviews.intellij.ui.AVJavaIDEAClassChooser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,20 +25,21 @@ import java.io.InputStream;
 /**
  * Created by enrico on 3/8/16.
  */
-public class AVFileEditor implements FileEditor {
+public class AVIDEAFileEditor implements FileEditor {
     private final Project project;
     private final VirtualFile virtualFile;
-    private final AVGraphPanel panel;
+    private final AVGraphSwingComponent panel;
     private final AVGraphFileWriter writer;
 
-    public AVFileEditor(Project project, VirtualFile virtualFile) throws IOException {
+    public AVIDEAFileEditor(Project project, VirtualFile virtualFile) throws IOException {
         this.project = project;
         this.virtualFile = virtualFile;
 
         this.writer = new AVGraphFileWriter();
 
-        this.panel = new AVGraphPanel(new AVJavaIDEAClassChooser(project));
-        AVGraphFileReader reader = new AVGraphFileReader(new AVJavaIDEAModuleProvider(project));
+        this.panel = new AVGraphSwingComponent(new AVJavaIDEAClassChooser(project), new AVJavaIDEAModuleNavigator(project),
+                new AVJavaIDEADependenciesFinder(project));
+        AVGraphFileReader reader = new AVGraphFileReader();
 //        reader.read(
         try (final InputStream inputStream = virtualFile.getInputStream()) {
             final AVGraph graph = reader.read(inputStream);
@@ -46,7 +48,7 @@ public class AVFileEditor implements FileEditor {
             }
         }
 
-        panel.addListener(new AVFileEditorPanelListener() {
+        panel.addListener(new AVFileEditorComponentListener() {
             @Override
             public void onAdd(AVModule module) {
                 save();

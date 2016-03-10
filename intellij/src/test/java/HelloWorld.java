@@ -4,22 +4,13 @@
 
 import javax.swing.JFrame;
 
-import com.mxgraph.layout.mxCompactTreeLayout;
-import com.mxgraph.layout.mxFastOrganicLayout;
-import com.mxgraph.layout.mxGraphLayout;
-import com.mxgraph.layout.mxOrganicLayout;
-import com.mxgraph.swing.mxGraphComponent;
-import com.mxgraph.util.mxConstants;
-import com.mxgraph.view.mxGraph;
-import com.mxgraph.view.mxStylesheet;
+import org.altviews.core.AVDependenciesFinder;
 import org.altviews.core.AVModule;
 import org.altviews.core.AVModuleDependency;
-import org.altviews.intellij.ui.UIUtils;
-import org.altviews.intellij.ui.editor.AVGraphPanel;
+import org.altviews.core.AVModuleNavigator;
+import org.altviews.intellij.ui.editor.AVGraphSwingComponent;
 import org.altviews.ui.AVClassChooser;
 
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.Serializable;
 import java.util.*;
 
@@ -95,7 +86,7 @@ public class HelloWorld extends JFrame
 //
 ////        graph.getView().setScale(1.5);
 //
-//        UIUtils.translate(graph, 5, 5);
+//        mxGraphUtils.translate(graph, 5, 5);
 //
 //        mxGraphComponent graphComponent = new mxGraphComponent(graph);
 //        graphComponent.setConnectable(false);
@@ -127,7 +118,18 @@ public class HelloWorld extends JFrame
                 return new AVModuleDummy("org.altviews.FirstClass", new AVModule[]{second, third});
             }
         };
-        getContentPane().add(new AVGraphPanel(chooser));//graphComponent);
+        AVModuleNavigator navigator = new AVModuleNavigator() {
+            @Override
+            public void navigateTo(AVModule module) {
+            }
+        };
+        AVDependenciesFinder finder = new AVDependenciesFinder() {
+            @Override
+            public Set<AVModuleDependency> getDependencies(AVModule module) {
+                return ((AVModuleDummy)module).getDependencies();
+            }
+        };
+        getContentPane().add(new AVGraphSwingComponent(chooser, navigator, finder));//graphComponent);
     }
 
     public static void main(String[] args)
@@ -153,7 +155,6 @@ public class HelloWorld extends JFrame
             }
         }
 
-        @Override
         public Set<AVModuleDependency> getDependencies() {
             return dependencies;
         }

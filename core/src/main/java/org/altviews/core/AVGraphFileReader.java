@@ -12,18 +12,13 @@ import java.util.Set;
  * Created by enrico on 3/9/16.
  */
 public class AVGraphFileReader {
-    private final AVModuleProvider moduleProvider;
-
-    public AVGraphFileReader(AVModuleProvider moduleProvider) {
-        this.moduleProvider = moduleProvider;
-    }
 
     public AVGraph read(InputStream is) throws IOException {
         final List<String> lines = IOUtils.readLines(is, "UTF-8");
         Set<AVModule> modules = new HashSet<>();
         for (String line : lines) {
             if (line.trim().length() > 0) {
-                modules.add(moduleProvider.getModule(line.trim()));
+                modules.add(new AVModuleImpl(line.trim()));
             }
         }
 
