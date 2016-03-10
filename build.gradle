@@ -1,0 +1,39 @@
+version = '1.0.0-SNAPSHOT'
+
+subprojects {
+    apply plugin: 'java'
+    
+    group = 'net.sourceforge.capa'
+    
+    sourceCompatibility = '1.8'
+
+    repositories {
+        mavenCentral()
+        mavenLocal()
+        
+        // remote JDFW maven repo
+        maven {
+            url "http://sourceforge.net:80/projects/jdfw/files/jdfw/maven-repo"
+        }
+    }
+
+    dependencies {
+        testCompile 'junit:junit:4.11'
+        testCompile 'org.mockito:mockito-all:1.10.19'
+    }
+
+    // to add resources from java and test source dirs since gradle does not copy them
+    sourceSets {
+        test {
+            resources {
+                srcDir 'src/test/java'
+            }
+        }
+        main {
+            resources {
+                srcDir 'src/main/java'
+            }
+        }
+    }
+
+}

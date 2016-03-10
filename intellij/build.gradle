@@ -1,0 +1,35 @@
+description = 'AltViews Intellij plugin'
+
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath 'gradle.plugin.org.jetbrains:gradle-intellij-plugin:0.0.43'
+    }
+}
+
+apply plugin: 'org.jetbrains.intellij'
+
+dependencies {
+    compile project(':core')
+    compile 'org.tinyjee.jgraphx:jgraphx:3.4.1.3'
+    testCompile project(':core').sourceSets.test.output
+}
+
+intellij {
+    version 'IC-141.177.4'
+    //plugins 'coverage'
+    pluginName 'AltViews'
+
+/*    publish {
+        username 'zolotov'
+        password 'password'
+        pluginId '5047'
+        channel 'nightly'
+    }
+    */
+}
+
