@@ -3,18 +3,13 @@ version = '1.0.0-SNAPSHOT'
 subprojects {
     apply plugin: 'java'
     
-    group = 'net.sourceforge.capa'
+    group = 'org.altviews'
     
-    sourceCompatibility = '1.8'
+    sourceCompatibility = '1.7'
 
     repositories {
         mavenCentral()
         mavenLocal()
-        
-        // remote JDFW maven repo
-        maven {
-            url "http://sourceforge.net:80/projects/jdfw/files/jdfw/maven-repo"
-        }
     }
 
     dependencies {

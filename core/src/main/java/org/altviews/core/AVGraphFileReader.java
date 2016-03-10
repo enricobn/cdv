@@ -15,7 +15,7 @@ public class AVGraphFileReader {
 
     public AVGraph read(InputStream is) throws IOException {
         final List<String> lines = IOUtils.readLines(is, "UTF-8");
-        Set<AVModule> modules = new HashSet<>();
+        final Set<AVModule> modules = new HashSet<>();
         for (String line : lines) {
             if (line.trim().length() > 0) {
                 modules.add(new AVModuleImpl(line.trim()));

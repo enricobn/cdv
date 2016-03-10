@@ -63,7 +63,7 @@ public class AVGraphSwingComponent extends JPanel implements AVGraph {
         //style.put(mxConstants.STYLE_ARCSIZE, "#774400");
         stylesheet.putCellStyle(ROUNDED, style);
 
-        mxGraphComponent graphComponent = new mxGraphComponent(graph);
+        final mxGraphComponent graphComponent = new mxGraphComponent(graph);
         graphComponent.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         graphComponent.setConnectable(false);
 
@@ -128,7 +128,7 @@ public class AVGraphSwingComponent extends JPanel implements AVGraph {
         }
     }
 
-    public void addModule(AVModule module) {
+    public void addModule(final AVModule module) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -146,15 +146,15 @@ public class AVGraphSwingComponent extends JPanel implements AVGraph {
             return;
         }
 
-        Object cell = graphComponent.getCellAt(e.getX(), e.getY());
+        final Object cell = graphComponent.getCellAt(e.getX(), e.getY());
 
         if (cell != null)
         {
             if (graph.getModel().isVertex(cell)) {
                 JPopupMenu popup = new JPopupMenu();
                 JMenuItem item;
-                AVModule module = (AVModule) graph.getModel().getValue(cell);
-                for (AVModuleDependency dep : finder.getDependencies(module)) {
+                final AVModule module = (AVModule) graph.getModel().getValue(cell);
+                for (final AVModuleDependency dep : finder.getDependencies(module)) {
                     if (modules.contains(dep.getModule())) {
                         continue;
                     }
