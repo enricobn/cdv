@@ -1,6 +1,6 @@
 package org.altviews.intellij.ui.editor;
 
-import com.mxgraph.layout.mxOrganicLayout;
+import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
@@ -22,18 +22,21 @@ import java.util.*;
  * Created by enrico on 3/8/16.
  */
 public class AVGraphSwingComponent extends JPanel implements AVGraph {
-    private static final String ROUNDED = "ROUNDED";
+    private static final String INTERFACE_STYLE = "INTERFACE";
+    private static final String CLASS_STYLE = "CLASS";
     private final Set<AVModule> modules = new HashSet<>();
     private final Collection<AVFileEditorComponentListener> listeners = new ArrayList<>();
     private final AVClassChooser classChooser;
     private final AVModuleNavigator navigator;
     private final AVDependenciesFinder finder;
+    private final AVModuleTypeProvider typeProvider;
     private final mxGraph graph;
 
-    public AVGraphSwingComponent(AVClassChooser classChooser, AVModuleNavigator navigator, AVDependenciesFinder finder) {
+    public AVGraphSwingComponent(AVClassChooser classChooser, AVModuleNavigator navigator, AVDependenciesFinder finder, AVModuleTypeProvider typeProvider) {
         this.classChooser = classChooser;
         this.navigator = navigator;
         this.finder = finder;
+        this.typeProvider = typeProvider;
         graph = new mxGraph() {
             public boolean isCellSelectable(Object cell)
             {
@@ -47,25 +50,48 @@ public class AVGraphSwingComponent extends JPanel implements AVGraph {
             @Override
             public boolean isCellEditable(Object cell) {
                 return false;
-//                return super.isCellEditable(cell);
+            }
+
+            @Override
+            public boolean isCellResizable(Object cell) {
+                return false;
             }
         };
 
         graph.setDisconnectOnMove(false);
 //        graph.setAutoSizeCells(true);
 
-        mxStylesheet stylesheet = graph.getStylesheet();
-        Hashtable<String, Object> style = new Hashtable<>();
-        style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_RECTANGLE);
-        style.put(mxConstants.STYLE_ROUNDED, "true");
-        //style.put(mxConstants.STYLE_OPACITY, 50);
-        //style.put(mxConstants.STYLE_FONTCOLOR, "#774400");
-        //style.put(mxConstants.STYLE_ARCSIZE, "#774400");
-        stylesheet.putCellStyle(ROUNDED, style);
+        {
+            mxStylesheet styleSheet = graph.getStylesheet();
+            Hashtable<String, Object> style = new Hashtable<>();
+            style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_RECTANGLE);
+            style.put(mxConstants.STYLE_ROUNDED, "true");
+            //style.put(mxConstants.STYLE_OPACITY, 50);
+            //style.put(mxConstants.STYLE_FONTCOLOR, "#774400");
+            //style.put(mxConstants.STYLE_ARCSIZE, "#774400");
+            style.put(mxConstants.STYLE_FONTSTYLE, mxConstants.FONT_BOLD);
+            style.put(mxConstants.STYLE_FONTCOLOR, "#4D6870");
+            style.put(mxConstants.STYLE_FILLCOLOR, "#D1F4FF");
+            style.put(mxConstants.STYLE_SPACING_TOP, 2);
+            style.put(mxConstants.STYLE_STROKEWIDTH, 2);
+            styleSheet.putCellStyle(INTERFACE_STYLE, style);
+        }
+
+        {
+            mxStylesheet styleSheet = graph.getStylesheet();
+            Hashtable<String, Object> style = new Hashtable<>();
+            style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_RECTANGLE);
+            style.put(mxConstants.STYLE_FONTSTYLE, mxConstants.FONT_BOLD);
+            style.put(mxConstants.STYLE_FONTCOLOR, "#4D6870");
+            style.put(mxConstants.STYLE_SPACING_TOP, 2);
+            style.put(mxConstants.STYLE_STROKEWIDTH, 2);
+            styleSheet.putCellStyle(CLASS_STYLE, style);
+        }
 
         final mxGraphComponent graphComponent = new mxGraphComponent(graph);
-        graphComponent.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+//        graphComponent.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         graphComponent.setConnectable(false);
+        graphComponent.getGraphHandler().setMoveEnabled(true);
 
         graphComponent.getGraphControl().addMouseListener(new MouseAdapter()
         {
@@ -148,17 +174,34 @@ public class AVGraphSwingComponent extends JPanel implements AVGraph {
 
         final Object cell = graphComponent.getCellAt(e.getX(), e.getY());
 
-        if (cell != null)
-        {
+        if (cell != null) {
             if (graph.getModel().isVertex(cell)) {
                 JPopupMenu popup = new JPopupMenu();
                 JMenuItem item;
                 final AVModule module = (AVModule) graph.getModel().getValue(cell);
-                for (final AVModuleDependency dep : finder.getDependencies(module)) {
-                    if (modules.contains(dep.getModule())) {
-                        continue;
+
+                final Set<AVModuleDependency> dependencies = finder.getDependencies(module);
+                for (Iterator<AVModuleDependency> i = dependencies.iterator(); i.hasNext();) {
+                    if (modules.contains(i.next().getModule())) {
+                        i.remove();
                     }
-                    popup.add(item = new JMenuItem(dep.toString()));
+                }
+
+                if (!dependencies.isEmpty()) {
+                    popup.add(item = new JMenuItem("Add all"));
+                    item.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            for (final AVModuleDependency dep : dependencies) {
+                                addModule(dep.getModule(), cell);
+                            }
+                        }
+                    });
+                    popup.addSeparator();
+                }
+
+                for (final AVModuleDependency dep : dependencies) {
+                    popup.add(item = new JMenuItem("Add " + dep.toString()));
                     item.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
@@ -166,6 +209,8 @@ public class AVGraphSwingComponent extends JPanel implements AVGraph {
                         }
                     });
                 }
+
+
 
                 if (popup.getSubElements().length > 0) {
                     popup.addSeparator();
@@ -220,13 +265,25 @@ public class AVGraphSwingComponent extends JPanel implements AVGraph {
             // and render context
             int adv = metrics.stringWidth(module.toString());
 
-            Object v1;
+            double x;
+            double y;
             if (fromCell == null) {
-                v1 = graph.insertVertex(parent, null, module, 20, 20, adv + 20, 30, ROUNDED);
+                x = 20;
+                y = 20;
             } else {
                 final mxGeometry geometry = graph.getCellGeometry(fromCell);
-                v1 = graph.insertVertex(parent, null, module, geometry.getX(), geometry.getY() + 30, adv + 20, 30, ROUNDED);
+                x = geometry.getX();
+                y = geometry.getY() + 30;
             }
+
+            String style;
+            if (AVModuleType.Interface == typeProvider.getType(module)) {
+                style = INTERFACE_STYLE;
+            } else {
+                style = CLASS_STYLE;
+            }
+
+            Object v1 = graph.insertVertex(parent, null, module, x, y, adv + 20, 30, style);
 
             modules.add(module);
 
@@ -267,9 +324,8 @@ public class AVGraphSwingComponent extends JPanel implements AVGraph {
     }
 
     private void doGraphLayout() {
-        mxOrganicLayout layout = new mxOrganicLayout(graph);
-//        layout.setOptimizeEdgeDistance(false);
-//        layout.setOptimizeBorderLine(false);
+//        mxOrganicLayout layout = new mxOrganicLayout(graph);
+        mxHierarchicalLayout layout = new mxHierarchicalLayout(graph);
 
         layout.execute(graph.getDefaultParent());
 

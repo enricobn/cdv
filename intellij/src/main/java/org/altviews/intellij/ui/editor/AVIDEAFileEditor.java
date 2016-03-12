@@ -11,6 +11,7 @@ import org.altviews.core.AVGraph;
 import org.altviews.core.AVGraphFileReader;
 import org.altviews.core.AVGraphFileWriter;
 import org.altviews.core.AVModule;
+import org.altviews.intellij.core.AVJavIdeaModuleTypeProvider;
 import org.altviews.intellij.core.AVJavaIDEADependenciesFinder;
 import org.altviews.intellij.core.AVJavaIDEAModuleNavigator;
 import org.altviews.intellij.ui.AVJavaIDEAClassChooser;
@@ -38,7 +39,7 @@ public class AVIDEAFileEditor implements FileEditor {
         this.writer = new AVGraphFileWriter();
 
         this.panel = new AVGraphSwingComponent(new AVJavaIDEAClassChooser(project), new AVJavaIDEAModuleNavigator(project),
-                new AVJavaIDEADependenciesFinder(project));
+                new AVJavaIDEADependenciesFinder(project), new AVJavIdeaModuleTypeProvider(project));
         AVGraphFileReader reader = new AVGraphFileReader();
 //        reader.read(
         try (final InputStream inputStream = virtualFile.getInputStream()) {

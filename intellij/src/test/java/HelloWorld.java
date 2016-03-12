@@ -4,10 +4,7 @@
 
 import javax.swing.JFrame;
 
-import org.altviews.core.AVDependenciesFinder;
-import org.altviews.core.AVModule;
-import org.altviews.core.AVModuleDependency;
-import org.altviews.core.AVModuleNavigator;
+import org.altviews.core.*;
 import org.altviews.intellij.ui.editor.AVGraphSwingComponent;
 import org.altviews.ui.AVClassChooser;
 
@@ -110,12 +107,15 @@ public class HelloWorld extends JFrame
 //
 ////        graphComponent.setZoomFactor(4.0);
 ////        graphComponent.setZoomPolicy(mxGraphComponent.ZOOM_POLICY_WIDTH);
+
+        final AVModule second = new AVModuleDummy("org.altviews.SecondClass");
+        final AVModule third = new AVModuleDummy("org.altviews.ThirdClass");
+        final AVModule first = new AVModuleDummy("org.altviews.FirstClass", new AVModule[]{second, third});
+
         AVClassChooser chooser = new AVClassChooser() {
             @Override
             public AVModule show(String title) {
-                AVModule second = new AVModuleDummy("org.altviews.SecondClass");
-                AVModule third = new AVModuleDummy("org.altviews.ThirdClass");
-                return new AVModuleDummy("org.altviews.FirstClass", new AVModule[]{second, third});
+                return first;
             }
         };
         AVModuleNavigator navigator = new AVModuleNavigator() {
@@ -129,7 +129,17 @@ public class HelloWorld extends JFrame
                 return ((AVModuleDummy)module).getDependencies();
             }
         };
-        getContentPane().add(new AVGraphSwingComponent(chooser, navigator, finder));//graphComponent);
+
+        AVModuleTypeProvider typeProvider = new AVModuleTypeProvider() {
+            @Override
+            public AVModuleType getType(AVModule module) {
+                if (module.equals(first)) {
+                    return AVModuleType.Interface;
+                }
+                return AVModuleType.Class;
+            }
+        };
+        getContentPane().add(new AVGraphSwingComponent(chooser, navigator, finder, typeProvider));//graphComponent);
     }
 
     public static void main(String[] args)
