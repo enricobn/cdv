@@ -1,7 +1,6 @@
 package org.altviews.intellij.ui.editor;
 
 import com.intellij.codeHighlighting.BackgroundEditorHighlighter;
-import com.intellij.codeInsight.hint.HintManager;
 import com.intellij.ide.structureView.StructureViewBuilder;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.SettingsSavingComponent;
@@ -12,7 +11,6 @@ import com.intellij.openapi.fileEditor.FileEditorStateLevel;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.ui.awt.RelativePoint;
 import org.altviews.core.AVGraph;
 import org.altviews.core.AVGraphFileReader;
 import org.altviews.core.AVGraphFileWriter;
@@ -25,10 +23,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.awt.*;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by enrico on 3/8/16.
@@ -38,7 +36,7 @@ public class AVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
     private final VirtualFile virtualFile;
     private final AVGraphSwingComponent panel;
     private final AVGraphFileWriter writer;
-    private boolean loaded;
+    private final AtomicBoolean loaded = new AtomicBoolean(false);
 
     public AVIDEAFileEditor(final Project project, final VirtualFile virtualFile) throws IOException {
         this.project = project;
@@ -50,7 +48,7 @@ public class AVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
                 new AVJavaIDEAClassChooser(project),
                 new AVJavaIDEAModuleNavigator(project),
                 new AVJavaIDEADependenciesFinder(project),
-                new AVJavIdeaModuleTypeProvider(project));
+                new AVJavIdeaModuleTypeProvider(project), false);
     }
 
     public void save() {
@@ -91,7 +89,6 @@ public class AVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
                 save();
             }
         });
-        loaded = true;
     }
 
     @NotNull
@@ -135,7 +132,7 @@ public class AVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
 
     @Override
     public void selectNotify() {
-        if (!loaded) {
+        if (loaded.compareAndSet(false, true)) {
             loadFile();
         }
     }

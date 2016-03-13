@@ -8,4 +8,6 @@ import java.util.Set;
 public interface AVGraph {
 
     Set<AVModule> getModules();
+
+    void clear();
 }

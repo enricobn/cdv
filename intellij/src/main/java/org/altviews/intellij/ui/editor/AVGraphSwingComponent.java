@@ -31,12 +31,15 @@ public class AVGraphSwingComponent extends JPanel implements AVGraph {
     private final AVDependenciesFinder finder;
     private final AVModuleTypeProvider typeProvider;
     private final mxGraph graph;
+    private final boolean horizontal;
 
-    public AVGraphSwingComponent(AVClassChooser classChooser, AVModuleNavigator navigator, AVDependenciesFinder finder, AVModuleTypeProvider typeProvider) {
+    public AVGraphSwingComponent(AVClassChooser classChooser, AVModuleNavigator navigator, AVDependenciesFinder finder,
+                                 AVModuleTypeProvider typeProvider, boolean horizontal) {
         this.classChooser = classChooser;
         this.navigator = navigator;
         this.finder = finder;
         this.typeProvider = typeProvider;
+        this.horizontal = horizontal;
         graph = new mxGraph() {
             public boolean isCellSelectable(Object cell)
             {
@@ -325,7 +328,13 @@ public class AVGraphSwingComponent extends JPanel implements AVGraph {
 
     private void doGraphLayout() {
 //        mxOrganicLayout layout = new mxOrganicLayout(graph);
-        mxHierarchicalLayout layout = new mxHierarchicalLayout(graph);
+        int orientation;
+        if (horizontal) {
+            orientation = SwingConstants.WEST;
+        } else {
+            orientation = SwingConstants.NORTH;
+        }
+        mxHierarchicalLayout layout = new mxHierarchicalLayout(graph, orientation);
 
         layout.execute(graph.getDefaultParent());
 
@@ -335,5 +344,16 @@ public class AVGraphSwingComponent extends JPanel implements AVGraph {
     @Override
     public Set<AVModule> getModules() {
         return modules;
+    }
+
+    @Override
+    public void clear() {
+        modules.clear();
+        graph.getModel().beginUpdate();
+        try {
+            graph.removeCells(graph.getChildVertices(graph.getDefaultParent()));
+        } finally {
+            graph.getModel().endUpdate();
+        }
     }
 }

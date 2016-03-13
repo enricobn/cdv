@@ -27,6 +27,11 @@ public class AVGraphFileReader {
             public Set<AVModule> getModules() {
                 return modules;
             }
+
+            @Override
+            public void clear() {
+                throw new UnsupportedOperationException();
+            }
         };
     }
 }
