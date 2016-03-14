@@ -5,6 +5,7 @@ package org.altviews.intellij.ui;
 
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.ex.AnActionListener;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.event.SelectionEvent;
 import com.intellij.openapi.editor.event.SelectionListener;
@@ -19,17 +20,20 @@ import com.intellij.psi.*;
 import com.intellij.ui.content.*;
 import org.altviews.core.AVModuleDependency;
 import org.altviews.core.AVModuleImpl;
+import org.altviews.intellij.AVJavaIDEAUtils;
 import org.altviews.intellij.core.AVJavIdeaModuleTypeProvider;
 import org.altviews.intellij.core.AVJavaIDEADependenciesFinder;
 import org.altviews.intellij.core.AVJavaIDEAModuleNavigator;
 import org.altviews.intellij.ui.editor.AVGraphSwingComponent;
 
+import java.util.Collection;
 import java.util.Set;
 
 /**
  * Created by enrico on 3/4/16.
  */
 public class AVToolWindowFactory implements ToolWindowFactory {
+    private static final Logger logger = Logger.getInstance(AVToolWindowFactory.class);
     private Project project;
     private ToolWindow toolWindow;
     private AVGraphSwingComponent component;
@@ -207,22 +211,41 @@ public class AVToolWindowFactory implements ToolWindowFactory {
     }
 
     private void refresh(VirtualFile file) {
-        final PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
-
+        logger.info("AVToolWindowFactory.refresh " + file);
         component.clear();
 
-        if (psiFile != null && psiFile instanceof  PsiClassOwner) {
-            final PsiClass[] psiClasses = ((PsiClassOwner) psiFile).getClasses();
-            if (psiClasses.length > 0) {
-                final AVModuleImpl module = new AVModuleImpl(psiClasses[0].getQualifiedName());
-                component.addModule(module);
-                final Set<AVModuleDependency> dependencies = new AVJavaIDEADependenciesFinder(project).getDependencies(module);
+        final Collection<PsiClass> psiClasses = AVJavaIDEAUtils.getPsiClasses(project, file);
+
+        if (!psiClasses.isEmpty()) {
+            AVModuleImpl mainModule = null;
+            for (PsiClass psiClass : psiClasses) {
+//                logger.info("AVToolWindowFactory.refresh class " + psiClass + ", containingClass " + psiClass.getContainingClass());
+                if (psiClass.getContainingClass() == null) {
+                    mainModule = new AVModuleImpl(psiClass.getQualifiedName());
+                    break;
+                }
+            }
+
+            if (mainModule == null) {
+                logger.error("AVToolWindowFactory.refresh " + file + " cannot find main class!");
+                return;
+            }
+
+            component.addModule(mainModule);
+
+            logger.info("AVToolWindowFactory.refresh mainModule " + mainModule);
+
+            for (PsiClass psiClass : psiClasses) {
+                logger.info("AVToolWindowFactory.refresh psiClass " + psiClass.getQualifiedName());
+                final Set<AVModuleDependency> dependencies = new AVJavaIDEADependenciesFinder(project)
+                        .getDependencies(psiClass);
                 for (AVModuleDependency dependency : dependencies) {
                     component.addModule(dependency.getModule());
                 }
             }
 
         }
+
     }
 
 }

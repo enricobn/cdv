@@ -246,15 +246,15 @@ public class AVGraphSwingComponent extends JPanel implements AVGraph {
     private void addFile() {
         final AVModule module = classChooser.show("Add class");
         if (module != null) {
-            if (modules.contains(module)) {
-                // TODO message
-                return;
-            }
             addModule(module, null);
         }
     }
 
     private void addModule(AVModule module, Object fromCell)  {
+        if (modules.contains(module)) {
+            // TODO message
+            return;
+        }
         Object parent = graph.getDefaultParent();
 
         graph.getModel().beginUpdate();
@@ -323,7 +323,7 @@ public class AVGraphSwingComponent extends JPanel implements AVGraph {
         for (AVFileEditorComponentListener listener : listeners) {
             listener.onAdd(module);
         }
-
+        return;
     }
 
     private void doGraphLayout() {

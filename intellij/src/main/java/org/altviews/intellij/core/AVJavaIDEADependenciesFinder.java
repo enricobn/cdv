@@ -8,6 +8,7 @@ import com.intellij.psi.util.PsiTypesUtil;
 import org.altviews.core.*;
 import org.altviews.intellij.AVJavaIDEAUtils;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,6 +25,14 @@ public class AVJavaIDEADependenciesFinder implements AVDependenciesFinder {
     @Override
     public Set<AVModuleDependency> getDependencies(AVModule module) {
         PsiClass psiClass = AVJavaIDEAUtils.getPsiClass(project, module.getFullName());
+        if (psiClass != null) {
+            return getDependencies(psiClass);
+        }
+        return Collections.emptySet();
+    }
+
+    public Set<AVModuleDependency> getDependencies(PsiClass psiClass) {
+
         Set<AVModuleDependency> result = new HashSet<>();
 
         for (PsiClassType ancestor : psiClass.getExtendsListTypes()) {
@@ -44,6 +53,12 @@ public class AVJavaIDEADependenciesFinder implements AVDependenciesFinder {
                 addDependency(result, PsiTypesUtil.getPsiClass(parameter.getType()));
             }
         }
+
+        for (PsiMethod method : psiClass.getConstructors()) {
+            for (PsiParameter parameter : method.getParameterList().getParameters()) {
+                addDependency(result, PsiTypesUtil.getPsiClass(parameter.getType()));
+            }
+        }
         return result;
     }
 
@@ -51,6 +66,11 @@ public class AVJavaIDEADependenciesFinder implements AVDependenciesFinder {
         if (dep == null) {
             return;
         }
+
+        for (PsiTypeParameter typeParameter : dep.getTypeParameters()) {
+            addDependency(result, typeParameter);
+        }
+
         final PsiFile[] files = FilenameIndex.getFilesByName(dep.getProject(), dep.getName() + ".java",
                 GlobalSearchScope.projectScope(dep.getProject()));
         if (files.length > 0) {
