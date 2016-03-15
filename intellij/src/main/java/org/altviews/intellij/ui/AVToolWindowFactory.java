@@ -51,7 +51,7 @@ public class AVToolWindowFactory implements ToolWindowFactory {
                 new AVJavaIDEAClassChooser(project),
                 new AVJavaIDEAModuleNavigator(project),
                 new AVJavaIDEADependenciesFinder(project),
-                new AVJavIdeaModuleTypeProvider(project), true);
+                new AVJavIdeaModuleTypeProvider(project), true, false);
 
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(component, "", false);

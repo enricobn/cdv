@@ -48,7 +48,7 @@ public class AVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
                 new AVJavaIDEAClassChooser(project),
                 new AVJavaIDEAModuleNavigator(project),
                 new AVJavaIDEADependenciesFinder(project),
-                new AVJavIdeaModuleTypeProvider(project), false);
+                new AVJavIdeaModuleTypeProvider(project), false, true);
     }
 
     public void save() {

@@ -32,14 +32,17 @@ public class AVGraphSwingComponent extends JPanel implements AVGraph {
     private final AVModuleTypeProvider typeProvider;
     private final mxGraph graph;
     private final boolean horizontal;
+    private final boolean editable;
 
     public AVGraphSwingComponent(AVClassChooser classChooser, AVModuleNavigator navigator, AVDependenciesFinder finder,
-                                 AVModuleTypeProvider typeProvider, boolean horizontal) {
+                                 AVModuleTypeProvider typeProvider, boolean horizontal, boolean editable) {
         this.classChooser = classChooser;
         this.navigator = navigator;
         this.finder = finder;
         this.typeProvider = typeProvider;
         this.horizontal = horizontal;
+        this.editable = editable;
+
         graph = new mxGraph() {
             public boolean isCellSelectable(Object cell)
             {
@@ -171,7 +174,7 @@ public class AVGraphSwingComponent extends JPanel implements AVGraph {
     }
 
     private void handleMouse(MouseEvent e, mxGraphComponent graphComponent) {
-        if (!e.isPopupTrigger()) {
+        if (!editable || !e.isPopupTrigger()) {
             return;
         }
 
