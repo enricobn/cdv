@@ -25,9 +25,8 @@ import org.altviews.intellij.AVJavaIDEAUtils;
 import org.altviews.intellij.core.AVJavIdeaModuleTypeProvider;
 import org.altviews.intellij.core.AVJavaIDEADependenciesFinder;
 import org.altviews.intellij.core.AVJavaIDEAModuleNavigator;
-import org.altviews.intellij.ui.editor.AVGraphSwingComponent;
+import org.altviews.intellij.ui.editor.AVSwingGraph;
 
-import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -37,7 +36,7 @@ public class AVToolWindowFactory implements ToolWindowFactory {
     private static final Logger logger = Logger.getInstance(AVToolWindowFactory.class);
     private Project project;
     private ToolWindow toolWindow;
-    private AVGraphSwingComponent component;
+    private AVSwingGraph component;
 
     public AVToolWindowFactory() {
     }
@@ -47,14 +46,13 @@ public class AVToolWindowFactory implements ToolWindowFactory {
         this.project = project;
         this.toolWindow = toolWindow;
 
-        component = new AVGraphSwingComponent(
-                new AVJavaIDEAClassChooser(project),
+        component = new AVSwingGraph(
                 new AVJavaIDEAModuleNavigator(project),
                 new AVJavaIDEADependenciesFinder(project),
                 new AVJavIdeaModuleTypeProvider(project), true, false);
 
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-        Content content = contentFactory.createContent(component, "", false);
+        Content content = contentFactory.createContent(component.getComponent(), "", false);
         toolWindow.getContentManager().addContent(content);
 
 

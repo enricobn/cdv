@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class AVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
     private final Project project;
     private final VirtualFile virtualFile;
-    private final AVGraphSwingComponent panel;
+    private final AVSwingEditor panel;
     private final AVGraphFileWriter writer;
     private final AtomicBoolean loaded = new AtomicBoolean(false);
 
@@ -44,11 +44,11 @@ public class AVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
 
         this.writer = new AVGraphFileWriter();
 
-        this.panel = new AVGraphSwingComponent(
+        this.panel = new AVSwingEditor(
                 new AVJavaIDEAClassChooser(project),
                 new AVJavaIDEAModuleNavigator(project),
                 new AVJavaIDEADependenciesFinder(project),
-                new AVJavIdeaModuleTypeProvider(project), false, true);
+                new AVJavIdeaModuleTypeProvider(project), false);
     }
 
     public void save() {
@@ -59,7 +59,7 @@ public class AVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
             @Override
             public void run() {
                 try {
-                    writer.write(panel, virtualFile.getOutputStream(null));
+                    writer.write(panel.getGraph(), virtualFile.getOutputStream(null));
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

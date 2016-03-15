@@ -5,7 +5,7 @@
 import javax.swing.JFrame;
 
 import org.altviews.core.*;
-import org.altviews.intellij.ui.editor.AVGraphSwingComponent;
+import org.altviews.intellij.ui.editor.AVSwingEditor;
 import org.altviews.ui.AVClassChooser;
 
 import java.io.Serializable;
@@ -53,8 +53,8 @@ public class HelloWorld extends JFrame
                 return AVModuleType.Class;
             }
         };
-        getContentPane().add(new AVGraphSwingComponent(chooser, navigator, finder, typeProvider,
-                false, true));
+        getContentPane().add(new AVSwingEditor(chooser, navigator, finder, typeProvider,
+                false));
     }
 
     public static void main(String[] args)

@@ -21,22 +21,21 @@ import java.util.*;
 /**
  * Created by enrico on 3/8/16.
  */
-public class AVGraphSwingComponent extends JPanel implements AVGraph {
+public class AVSwingGraph implements AVGraph {
     private static final String INTERFACE_STYLE = "INTERFACE";
     private static final String CLASS_STYLE = "CLASS";
     private final Set<AVModule> modules = new HashSet<>();
     private final Collection<AVFileEditorComponentListener> listeners = new ArrayList<>();
-    private final AVClassChooser classChooser;
     private final AVModuleNavigator navigator;
     private final AVDependenciesFinder finder;
     private final AVModuleTypeProvider typeProvider;
     private final mxGraph graph;
     private final boolean horizontal;
     private final boolean editable;
+    private final mxGraphComponent graphComponent;
 
-    public AVGraphSwingComponent(AVClassChooser classChooser, AVModuleNavigator navigator, AVDependenciesFinder finder,
-                                 AVModuleTypeProvider typeProvider, boolean horizontal, boolean editable) {
-        this.classChooser = classChooser;
+    public AVSwingGraph(AVModuleNavigator navigator, AVDependenciesFinder finder,
+                        AVModuleTypeProvider typeProvider, boolean horizontal, boolean editable) {
         this.navigator = navigator;
         this.finder = finder;
         this.typeProvider = typeProvider;
@@ -94,7 +93,7 @@ public class AVGraphSwingComponent extends JPanel implements AVGraph {
             styleSheet.putCellStyle(CLASS_STYLE, style);
         }
 
-        final mxGraphComponent graphComponent = new mxGraphComponent(graph);
+        graphComponent = new mxGraphComponent(graph);
 //        graphComponent.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         graphComponent.setConnectable(false);
         graphComponent.getGraphHandler().setMoveEnabled(true);
@@ -116,34 +115,10 @@ public class AVGraphSwingComponent extends JPanel implements AVGraph {
                 handleMouseClicked(e, graphComponent);
             }
         });
+    }
 
-        JButton addFileButton = new JButton("Add");
-        addFileButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addFile();
-            }
-        });
-
-        setLayout(new GridBagLayout());
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.NORTHWEST;
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.weightx = 1.0;
-        gbc.weighty = 0;
-        add(addFileButton, gbc);
-
-        gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.anchor = GridBagConstraints.NORTHWEST;
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
-        add(graphComponent, gbc);
+    public JComponent getComponent() {
+        return graphComponent;
     }
 
     private void handleMouseClicked(MouseEvent e, mxGraphComponent graphComponent) {
@@ -173,7 +148,7 @@ public class AVGraphSwingComponent extends JPanel implements AVGraph {
         listeners.add(listener);
     }
 
-    private void handleMouse(MouseEvent e, mxGraphComponent graphComponent) {
+    private void handleMouse(MouseEvent e, final mxGraphComponent graphComponent) {
         if (!editable || !e.isPopupTrigger()) {
             return;
         }
@@ -232,7 +207,7 @@ public class AVGraphSwingComponent extends JPanel implements AVGraph {
                             graph.getModel().endUpdate();
                             modules.remove(module);
                             doGraphLayout();
-                            repaint();
+                            graphComponent.repaint();
                             for (AVFileEditorComponentListener listener : listeners) {
                                 listener.onRemove(module);
                             }
@@ -246,13 +221,6 @@ public class AVGraphSwingComponent extends JPanel implements AVGraph {
         }
     }
 
-    private void addFile() {
-        final AVModule module = classChooser.show("Add class");
-        if (module != null) {
-            addModule(module, null);
-        }
-    }
-
     private void addModule(AVModule module, Object fromCell)  {
         if (modules.contains(module)) {
             // TODO message
@@ -263,7 +231,7 @@ public class AVGraphSwingComponent extends JPanel implements AVGraph {
         graph.getModel().beginUpdate();
         try {
             // get metrics from the graphics
-            FontMetrics metrics = getGraphics().getFontMetrics(getFont());
+            FontMetrics metrics = graphComponent.getFontMetrics(graphComponent.getFont());
             // get the height of a line of text in this
             // font and render context
 //            int hgt = metrics.getHeight();
@@ -321,12 +289,11 @@ public class AVGraphSwingComponent extends JPanel implements AVGraph {
         doGraphLayout();
 
         graph.setAutoSizeCells(true);
-        repaint();
+        graphComponent.repaint();
 
         for (AVFileEditorComponentListener listener : listeners) {
             listener.onAdd(module);
         }
-        return;
     }
 
     private void doGraphLayout() {
@@ -346,7 +313,7 @@ public class AVGraphSwingComponent extends JPanel implements AVGraph {
 
     @Override
     public Set<AVModule> getModules() {
-        return modules;
+        return Collections.unmodifiableSet(modules);
     }
 
     @Override
