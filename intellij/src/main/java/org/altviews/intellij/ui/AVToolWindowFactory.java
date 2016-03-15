@@ -18,6 +18,7 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.psi.*;
 import com.intellij.ui.content.*;
+import org.altviews.core.AVModule;
 import org.altviews.core.AVModuleDependency;
 import org.altviews.core.AVModuleImpl;
 import org.altviews.intellij.AVJavaIDEAUtils;
@@ -55,6 +56,8 @@ public class AVToolWindowFactory implements ToolWindowFactory {
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(component, "", false);
         toolWindow.getContentManager().addContent(content);
+
+
 
 //        toolWindow.getContentManager().addContentManagerListener(new ContentManagerListener() {
 //            @Override
@@ -214,36 +217,20 @@ public class AVToolWindowFactory implements ToolWindowFactory {
         logger.info("AVToolWindowFactory.refresh " + file);
         component.clear();
 
-        final Collection<PsiClass> psiClasses = AVJavaIDEAUtils.getPsiClasses(project, file);
+        final PsiClass mainClass = AVJavaIDEAUtils.getMainClass(project, file);
 
-        if (!psiClasses.isEmpty()) {
-            AVModuleImpl mainModule = null;
-            for (PsiClass psiClass : psiClasses) {
-//                logger.info("AVToolWindowFactory.refresh class " + psiClass + ", containingClass " + psiClass.getContainingClass());
-                if (psiClass.getContainingClass() == null) {
-                    mainModule = new AVModuleImpl(psiClass.getQualifiedName());
-                    break;
-                }
-            }
+        if (mainClass == null) {
+            return;
+        }
 
-            if (mainModule == null) {
-                logger.error("AVToolWindowFactory.refresh " + file + " cannot find main class!");
-                return;
-            }
+        AVModule mainModule = new AVModuleImpl(mainClass.getQualifiedName());
 
-            component.addModule(mainModule);
+        component.addModule(mainModule);
 
-            logger.info("AVToolWindowFactory.refresh mainModule " + mainModule);
-
-            for (PsiClass psiClass : psiClasses) {
-                logger.info("AVToolWindowFactory.refresh psiClass " + psiClass.getQualifiedName());
-                final Set<AVModuleDependency> dependencies = new AVJavaIDEADependenciesFinder(project)
-                        .getDependencies(psiClass);
-                for (AVModuleDependency dependency : dependencies) {
-                    component.addModule(dependency.getModule());
-                }
-            }
-
+        final Set<AVModuleDependency> dependencies = new AVJavaIDEADependenciesFinder(project)
+                .getDependencies(mainModule);
+        for (AVModuleDependency dependency : dependencies) {
+            component.addModule(dependency.getModule());
         }
 
     }

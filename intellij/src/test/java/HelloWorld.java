@@ -139,7 +139,7 @@ public class HelloWorld extends JFrame
                 return AVModuleType.Class;
             }
         };
-        getContentPane().add(new AVGraphSwingComponent(chooser, navigator, finder, typeProvider, horizontal));//graphComponent);
+        getContentPane().add(new AVGraphSwingComponent(chooser, navigator, finder, typeProvider, false));//graphComponent);
     }
 
     public static void main(String[] args)
