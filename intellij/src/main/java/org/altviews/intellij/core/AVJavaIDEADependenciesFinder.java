@@ -70,30 +70,30 @@ public class AVJavaIDEADependenciesFinder implements AVDependenciesFinder {
 
         psiClass.acceptChildren(visitor);
 
-        for (PsiClassType ancestor : psiClass.getExtendsListTypes()) {
-            addDependency(result, ancestor.resolve());
-        }
-
-        for (PsiClassType iFace : psiClass.getImplementsListTypes()) {
-            addDependency(result, iFace.resolve());
-        }
-
-        for (PsiField field : psiClass.getAllFields()) {
-            addDependency(result, PsiTypesUtil.getPsiClass(field.getType()));
-        }
-
-        for (PsiMethod method : psiClass.getAllMethods()) {
-            addDependency(result, PsiTypesUtil.getPsiClass(method.getReturnType()));
-            for (PsiParameter parameter : method.getParameterList().getParameters()) {
-                addDependency(result, PsiTypesUtil.getPsiClass(parameter.getType()));
-            }
-        }
-
-        for (PsiMethod method : psiClass.getConstructors()) {
-            for (PsiParameter parameter : method.getParameterList().getParameters()) {
-                addDependency(result, PsiTypesUtil.getPsiClass(parameter.getType()));
-            }
-        }
+//        for (PsiClassType ancestor : psiClass.getExtendsListTypes()) {
+//            addDependency(result, ancestor.resolve());
+//        }
+//
+//        for (PsiClassType iFace : psiClass.getImplementsListTypes()) {
+//            addDependency(result, iFace.resolve());
+//        }
+//
+//        for (PsiField field : psiClass.getAllFields()) {
+//            addDependency(result, PsiTypesUtil.getPsiClass(field.getType()));
+//        }
+//
+//        for (PsiMethod method : psiClass.getAllMethods()) {
+//            addDependency(result, PsiTypesUtil.getPsiClass(method.getReturnType()));
+//            for (PsiParameter parameter : method.getParameterList().getParameters()) {
+//                addDependency(result, PsiTypesUtil.getPsiClass(parameter.getType()));
+//            }
+//        }
+//
+//        for (PsiMethod method : psiClass.getConstructors()) {
+//            for (PsiParameter parameter : method.getParameterList().getParameters()) {
+//                addDependency(result, PsiTypesUtil.getPsiClass(parameter.getType()));
+//            }
+//        }
         return result;
     }
 

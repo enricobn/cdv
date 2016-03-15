@@ -3,21 +3,18 @@ package org.altviews.intellij;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiClassOwner;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.PsiShortNamesCache;
-import com.intellij.util.containers.hash.*;
-import com.intellij.util.containers.hash.HashSet;
-import org.altviews.core.AVModuleImpl;
-
-import java.util.*;
 
 /**
  * Created by enrico on 3/10/16.
  */
 public abstract class AVJavaIDEAUtils {
     private static final Logger logger = Logger.getInstance(AVJavaIDEAUtils.class);
-    private static final PsiClass[] EMPTY_PSICLASSES = new PsiClass[0];
 
     public static PsiClass getPsiClass(Project project, String fullName) {
         String name;
