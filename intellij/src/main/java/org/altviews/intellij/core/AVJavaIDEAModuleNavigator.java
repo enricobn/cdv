@@ -1,6 +1,7 @@
 package org.altviews.intellij.core;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiClass;
 import org.altviews.core.AVModule;
 import org.altviews.core.AVModuleNavigator;
 import org.altviews.intellij.AVJavaIDEAUtils;
@@ -17,6 +18,9 @@ public class AVJavaIDEAModuleNavigator implements AVModuleNavigator {
 
     @Override
     public void navigateTo(AVModule module) {
-        AVJavaIDEAUtils.getPsiClass(project, module.getFullName()).navigate(true);
+        final PsiClass psiClass = AVJavaIDEAUtils.getPsiClass(project, module.getFullName());
+        if (psiClass != null) {
+            psiClass.navigate(true);
+        }
     }
 }

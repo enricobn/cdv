@@ -18,7 +18,7 @@ import java.io.IOException;
  */
 public class AVIDEAEditorProvider extends FileTypeFactory implements FileEditorProvider {
     @Override
-    public boolean accept(Project project, VirtualFile virtualFile) {
+    public boolean accept(@NotNull Project project, @NotNull VirtualFile virtualFile) {
         if (virtualFile.getExtension() == null) {
             return false;
         }
@@ -27,12 +27,8 @@ public class AVIDEAEditorProvider extends FileTypeFactory implements FileEditorP
 
     @NotNull
     @Override
-    public FileEditor createEditor(Project project, VirtualFile virtualFile) {
-        try {
-            return new AVIDEAFileEditor(project, virtualFile);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public FileEditor createEditor(@NotNull Project project, @NotNull VirtualFile virtualFile) {
+        return new AVIDEAFileEditor(project, virtualFile);
     }
 
     @Override

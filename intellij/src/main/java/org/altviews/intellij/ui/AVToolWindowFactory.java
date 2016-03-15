@@ -26,6 +26,7 @@ import org.altviews.intellij.core.AVJavIdeaModuleTypeProvider;
 import org.altviews.intellij.core.AVJavaIDEADependenciesFinder;
 import org.altviews.intellij.core.AVJavaIDEAModuleNavigator;
 import org.altviews.intellij.ui.editor.AVSwingGraph;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
 
@@ -35,16 +36,14 @@ import java.util.Set;
 public class AVToolWindowFactory implements ToolWindowFactory {
     private static final Logger logger = Logger.getInstance(AVToolWindowFactory.class);
     private Project project;
-    private ToolWindow toolWindow;
     private AVSwingGraph component;
 
     public AVToolWindowFactory() {
     }
 
     @Override
-    public void createToolWindowContent(final Project project, final ToolWindow toolWindow) {
+    public void createToolWindowContent(@NotNull final Project project, @NotNull final ToolWindow toolWindow) {
         this.project = project;
-        this.toolWindow = toolWindow;
 
         component = new AVSwingGraph(
                 new AVJavaIDEAModuleNavigator(project),
@@ -169,17 +168,17 @@ public class AVToolWindowFactory implements ToolWindowFactory {
 
         project.getMessageBus().connect().subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, new FileEditorManagerListener() {
             @Override
-            public void fileOpened(FileEditorManager fileEditorManager, VirtualFile virtualFile) {
+            public void fileOpened(@NotNull FileEditorManager fileEditorManager, @NotNull VirtualFile virtualFile) {
                 refresh(virtualFile);
             }
 
             @Override
-            public void fileClosed(FileEditorManager fileEditorManager, VirtualFile virtualFile) {
+            public void fileClosed(@NotNull FileEditorManager fileEditorManager, @NotNull VirtualFile virtualFile) {
 
             }
 
             @Override
-            public void selectionChanged(FileEditorManagerEvent fileEditorManagerEvent) {
+            public void selectionChanged(@NotNull FileEditorManagerEvent fileEditorManagerEvent) {
                 refresh(fileEditorManagerEvent.getNewFile());
             }
         });

@@ -32,14 +32,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Created by enrico on 3/8/16.
  */
 public class AVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
-    private final Project project;
     private final VirtualFile virtualFile;
     private final AVSwingEditor panel;
     private final AVGraphFileWriter writer;
     private final AtomicBoolean loaded = new AtomicBoolean(false);
 
-    public AVIDEAFileEditor(final Project project, final VirtualFile virtualFile) throws IOException {
-        this.project = project;
+    public AVIDEAFileEditor(final Project project, final VirtualFile virtualFile) {
         this.virtualFile = virtualFile;
 
         this.writer = new AVGraphFileWriter();

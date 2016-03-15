@@ -2,7 +2,7 @@
  * Created by enrico on 3/5/16.
  */
 
-import javax.swing.JFrame;
+import javax.swing.*;
 
 import org.altviews.core.*;
 import org.altviews.intellij.ui.editor.AVSwingEditor;
@@ -60,7 +60,7 @@ public class HelloWorld extends JFrame
     public static void main(String[] args)
     {
         HelloWorld frame = new HelloWorld();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setSize(400, 320);
         frame.setVisible(true);
     }

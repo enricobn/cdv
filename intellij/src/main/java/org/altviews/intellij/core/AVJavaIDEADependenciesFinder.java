@@ -98,12 +98,12 @@ public class AVJavaIDEADependenciesFinder implements AVDependenciesFinder {
     }
 
     private static void addDependency(final Set<AVModuleDependency> result, final PsiReference dep) {
-//        logger.info("AVJavaIDEADependenciesFinder.addDependancy " + dep);
+//        logger.info("AVJavaIDEADependenciesFinder.addDependency " + dep);
         if (dep == null) {
             return;
         }
 
-//        logger.info("AVJavaIDEADependenciesFinder.addDependancy PsiReference resolve " + dep.resolve());
+//        logger.info("AVJavaIDEADependenciesFinder.addDependency PsiReference resolve " + dep.resolve());
 
         if (dep.resolve() instanceof PsiClass) {
             addDependency(result, (PsiClass) dep.resolve());
@@ -119,7 +119,7 @@ public class AVJavaIDEADependenciesFinder implements AVDependenciesFinder {
     }
 
     private static void addDependency(final Set<AVModuleDependency> result, final PsiTypeElement dep) {
-//        logger.info("AVJavaIDEADependenciesFinder.addDependancy " + dep);
+//        logger.info("AVJavaIDEADependenciesFinder.addDependency " + dep);
         if (dep == null) {
             return;
         }
@@ -145,7 +145,7 @@ public class AVJavaIDEADependenciesFinder implements AVDependenciesFinder {
     }
 
     private static void addDependency(Set<AVModuleDependency> result, PsiClass dep) {
-//        logger.info("AVJavaIDEADependenciesFinder.addDependancy " + dep);
+//        logger.info("AVJavaIDEADependenciesFinder.addDependency " + dep);
         if (dep == null) {
             return;
         }

@@ -12,7 +12,7 @@ import javax.swing.*;
  */
 public class AVIDEAFileType implements FileType {
     public static final AVIDEAFileType INSTANCE = new AVIDEAFileType();
-    public static String DEFAULT_EXTENSION = "av";
+    public static final String DEFAULT_EXTENSION = "av";
 
     private AVIDEAFileType() {
     }
