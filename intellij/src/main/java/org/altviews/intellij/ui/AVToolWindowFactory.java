@@ -7,8 +7,11 @@ import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.ex.AnActionListener;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.EditorFactory;
+import com.intellij.openapi.editor.event.DocumentEvent;
+import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.event.SelectionEvent;
 import com.intellij.openapi.editor.event.SelectionListener;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
@@ -43,7 +46,9 @@ public class AVToolWindowFactory implements ToolWindowFactory {
 
     @Override
     public void createToolWindowContent(@NotNull final Project project, @NotNull final ToolWindow toolWindow) {
+        logger.info("AVToolWindowFactory.createToolWindowContent");
         this.project = project;
+
 
         component = new AVSwingGraph(
                 new AVJavaIDEAModuleNavigator(project),
@@ -53,7 +58,33 @@ public class AVToolWindowFactory implements ToolWindowFactory {
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(component.getComponent(), "", false);
         toolWindow.getContentManager().addContent(content);
+        toolWindow.getActivation().processOnDone(new Runnable() {
+            @Override
+            public void run() {
+//                logger.info("AVToolWindowFactory.onDone");
+            }
+        }, true);
 
+        EditorFactory.getInstance().getEventMulticaster().addDocumentListener(new DocumentListener() {
+            @Override
+            public void beforeDocumentChange(DocumentEvent documentEvent) {
+
+            }
+
+            @Override
+            public void documentChanged(DocumentEvent documentEvent) {
+//                logger.info("AVToolWindowFactory.documentChanged");
+                final VirtualFile file = FileDocumentManager.getInstance().getFile(
+                        documentEvent.getDocument());
+                PsiDocumentManager.getInstance(project).performForCommittedDocument(documentEvent.getDocument(), new Runnable() {
+                    @Override
+                    public void run() {
+//                        logger.info("AVToolWindowFactory.documentChanged refresh");
+                        refresh(file);
+                    }
+                });
+            }
+        });
 
 
 //        toolWindow.getContentManager().addContentManagerListener(new ContentManagerListener() {
@@ -169,6 +200,7 @@ public class AVToolWindowFactory implements ToolWindowFactory {
         project.getMessageBus().connect().subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, new FileEditorManagerListener() {
             @Override
             public void fileOpened(@NotNull FileEditorManager fileEditorManager, @NotNull VirtualFile virtualFile) {
+                logger.info("AVToolWindowFactory.fileOpened");
                 refresh(virtualFile);
             }
 
@@ -179,6 +211,7 @@ public class AVToolWindowFactory implements ToolWindowFactory {
 
             @Override
             public void selectionChanged(@NotNull FileEditorManagerEvent fileEditorManagerEvent) {
+                logger.info("AVToolWindowFactory.selectionChanged");
                 refresh(fileEditorManagerEvent.getNewFile());
             }
         });
@@ -211,7 +244,7 @@ public class AVToolWindowFactory implements ToolWindowFactory {
     }
 
     private void refresh(VirtualFile file) {
-        logger.info("AVToolWindowFactory.refresh " + file);
+//        logger.info("AVToolWindowFactory.refresh " + file);
         component.clear();
 
         final PsiClass mainClass = AVJavaIDEAUtils.getMainClass(project, file);
