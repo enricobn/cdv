@@ -5,6 +5,7 @@ package org.altviews.intellij.ui;
 
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.ex.AnActionListener;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.event.DocumentEvent;
@@ -21,9 +22,7 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.psi.*;
 import com.intellij.ui.content.*;
-import org.altviews.core.AVModule;
-import org.altviews.core.AVModuleDependency;
-import org.altviews.core.AVModuleImpl;
+import org.altviews.core.*;
 import org.altviews.intellij.AVJavaIDEAUtils;
 import org.altviews.intellij.core.AVJavIdeaModuleTypeProvider;
 import org.altviews.intellij.core.AVJavaIDEADependenciesFinder;
@@ -31,6 +30,8 @@ import org.altviews.intellij.core.AVJavaIDEAModuleNavigator;
 import org.altviews.intellij.ui.editor.AVSwingGraph;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -46,7 +47,7 @@ public class AVToolWindowFactory implements ToolWindowFactory {
 
     @Override
     public void createToolWindowContent(@NotNull final Project project, @NotNull final ToolWindow toolWindow) {
-        logger.info("AVToolWindowFactory.createToolWindowContent");
+//        logger.info("AVToolWindowFactory.createToolWindowContent");
         this.project = project;
 
 
@@ -65,6 +66,20 @@ public class AVToolWindowFactory implements ToolWindowFactory {
             }
         }, true);
 
+        final TimedQueueThread<VirtualFile> queue = new TimedQueueThread<>(new TimedQueueThread.ElementRunnable<VirtualFile>() {
+            @Override
+            public void run(final VirtualFile element) {
+                ApplicationManager.getApplication().runReadAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        refresh(element);
+                    }
+                });
+            }
+        }, 1000);
+
+        queue.start();
+
         EditorFactory.getInstance().getEventMulticaster().addDocumentListener(new DocumentListener() {
             @Override
             public void beforeDocumentChange(DocumentEvent documentEvent) {
@@ -79,8 +94,9 @@ public class AVToolWindowFactory implements ToolWindowFactory {
                 PsiDocumentManager.getInstance(project).performForCommittedDocument(documentEvent.getDocument(), new Runnable() {
                     @Override
                     public void run() {
-//                        logger.info("AVToolWindowFactory.documentChanged refresh");
-                        refresh(file);
+//                        logger.info("AVToolWindowFactory.documentChanged performForCommittedDocument " + file);
+                        queue.add(file);
+//                        refresh(file);
                     }
                 });
             }
@@ -200,7 +216,7 @@ public class AVToolWindowFactory implements ToolWindowFactory {
         project.getMessageBus().connect().subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, new FileEditorManagerListener() {
             @Override
             public void fileOpened(@NotNull FileEditorManager fileEditorManager, @NotNull VirtualFile virtualFile) {
-                logger.info("AVToolWindowFactory.fileOpened");
+//                logger.info("AVToolWindowFactory.fileOpened");
                 refresh(virtualFile);
             }
 
@@ -211,7 +227,7 @@ public class AVToolWindowFactory implements ToolWindowFactory {
 
             @Override
             public void selectionChanged(@NotNull FileEditorManagerEvent fileEditorManagerEvent) {
-                logger.info("AVToolWindowFactory.selectionChanged");
+//                logger.info("AVToolWindowFactory.selectionChanged");
                 refresh(fileEditorManagerEvent.getNewFile());
             }
         });
@@ -245,8 +261,6 @@ public class AVToolWindowFactory implements ToolWindowFactory {
 
     private void refresh(VirtualFile file) {
 //        logger.info("AVToolWindowFactory.refresh " + file);
-        component.clear();
-
         final PsiClass mainClass = AVJavaIDEAUtils.getMainClass(project, file);
 
         if (mainClass == null) {
@@ -255,14 +269,21 @@ public class AVToolWindowFactory implements ToolWindowFactory {
 
         AVModule mainModule = new AVModuleImpl(mainClass.getQualifiedName());
 
-        component.addModule(mainModule);
+        Collection<AVModule> modules = new HashSet<>();
 
-        final Set<AVModuleDependency> dependencies = new AVJavaIDEADependenciesFinder(project)
-                .getDependencies(mainModule);
+        modules.add(mainModule);
+
+        final AVDependenciesFinderCached finder = new AVDependenciesFinderCached(new AVJavaIDEADependenciesFinder(project));
+
+        final Set<AVModuleDependency> dependencies = finder.getDependencies(mainModule);
         for (AVModuleDependency dependency : dependencies) {
-            component.addModule(dependency.getModule());
+            modules.add(dependency.getModule());
         }
 
+        if (!modules.equals(component.getModules())) {
+            component.clear();
+            component.addModules(modules, finder);
+        }
     }
 
 }

@@ -8,7 +8,6 @@ import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxStylesheet;
 import org.altviews.core.*;
 import org.altviews.intellij.ui.mxGraphUtils;
-import org.altviews.ui.AVClassChooser;
 
 import javax.swing.*;
 import java.awt.*;
@@ -139,9 +138,24 @@ public class AVSwingGraph implements AVGraph {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                addModule(module, null);
+                addModule(module, null, finder);
             }
         });
+    }
+
+    public void addModules(final Collection<AVModule> modules) {
+        addModules(modules, new AVDependenciesFinderCached(finder));
+    }
+
+    public void addModules(final Collection<AVModule> modules, final AVDependenciesFinder finder) {
+        for (final AVModule module : modules) {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    addModule(module, null, finder);
+                }
+            });
+        }
     }
 
     public void addListener(AVFileEditorComponentListener listener) {
@@ -173,9 +187,11 @@ public class AVSwingGraph implements AVGraph {
                     item.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
+                            Collection<AVModule> modules = new ArrayList<AVModule>();
                             for (final AVModuleDependency dep : dependencies) {
-                                addModule(dep.getModule(), cell);
+                                modules.add(dep.getModule());
                             }
+                            addModules(modules);
                         }
                     });
                     popup.addSeparator();
@@ -186,7 +202,7 @@ public class AVSwingGraph implements AVGraph {
                     item.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            addModule(dep.getModule(), cell);
+                            addModule(dep.getModule(), cell, finder);
                         }
                     });
                 }
@@ -221,22 +237,15 @@ public class AVSwingGraph implements AVGraph {
         }
     }
 
-    private void addModule(AVModule module, Object fromCell)  {
+    private void addModule(AVModule module, Object fromCell, AVDependenciesFinder finder)  {
         if (modules.contains(module)) {
-            // TODO message
             return;
         }
         Object parent = graph.getDefaultParent();
 
         graph.getModel().beginUpdate();
         try {
-            // get metrics from the graphics
             FontMetrics metrics = graphComponent.getFontMetrics(graphComponent.getFont());
-            // get the height of a line of text in this
-            // font and render context
-//            int hgt = metrics.getHeight();
-            // get the advance of my text in this font
-            // and render context
             int adv = metrics.stringWidth(module.toString());
 
             double x;
@@ -261,6 +270,8 @@ public class AVSwingGraph implements AVGraph {
 
             modules.add(module);
 
+            final Set<AVModuleDependency> dependencies = finder.getDependencies(module);
+
             final Object[] vertices = graph.getChildCells(parent, true, false);
 
             for (Object vertex : vertices) {
@@ -275,7 +286,8 @@ public class AVSwingGraph implements AVGraph {
                         graph.insertEdge(parent, null, null, vertex, v1);
                     }
                 }
-                for (AVModuleDependency dep : finder.getDependencies(module)) {
+
+                for (AVModuleDependency dep : dependencies) {
                     if (dep.getModule().equals(m)) {
                         graph.insertEdge(parent, null, null, v1, vertex);
                     }
