@@ -7,7 +7,9 @@ import javax.swing.*;
 import org.altviews.core.*;
 import org.altviews.intellij.ui.editor.AVSwingEditor;
 import org.altviews.ui.AVClassChooser;
+import org.altviews.ui.AVFileSaveChooser;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.*;
 
@@ -53,8 +55,14 @@ public class HelloWorld extends JFrame
                 return AVModuleType.Class;
             }
         };
+        AVFileSaveChooser saveChooser = new AVFileSaveChooser() {
+            @Override
+            public File choose(String message, String suffix) {
+                return new File("test." + suffix);
+            }
+        };
         getContentPane().add(new AVSwingEditor(chooser, navigator, finder, typeProvider,
-                false));
+                saveChooser, false));
     }
 
     public static void main(String[] args)

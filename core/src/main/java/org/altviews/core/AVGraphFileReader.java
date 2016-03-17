@@ -2,6 +2,7 @@ package org.altviews.core;
 
 import org.apache.commons.io.IOUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
@@ -32,6 +33,12 @@ public class AVGraphFileReader {
             public void clear() {
                 throw new UnsupportedOperationException();
             }
+
+            @Override
+            public void exportToSVG(File file) {
+                throw new UnsupportedOperationException();
+            }
+
         };
     }
 }

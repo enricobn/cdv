@@ -18,6 +18,7 @@ import org.altviews.core.AVModule;
 import org.altviews.intellij.core.AVJavIdeaModuleTypeProvider;
 import org.altviews.intellij.core.AVJavaIDEADependenciesFinder;
 import org.altviews.intellij.core.AVJavaIDEAModuleNavigator;
+import org.altviews.intellij.ui.AVIDEAFileSaveChooser;
 import org.altviews.intellij.ui.AVJavaIDEAClassChooser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -46,7 +47,8 @@ public class AVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
                 new AVJavaIDEAClassChooser(project),
                 new AVJavaIDEAModuleNavigator(project),
                 new AVJavaIDEADependenciesFinder(project),
-                new AVJavIdeaModuleTypeProvider(project), false);
+                new AVJavIdeaModuleTypeProvider(project),
+                new AVIDEAFileSaveChooser(project), false);
     }
 
     public void save() {

@@ -1,5 +1,6 @@
 package org.altviews.intellij.ui.editor;
 
+import com.mxgraph.canvas.mxSvgCanvas;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.swing.mxGraphComponent;
@@ -8,13 +9,23 @@ import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxStylesheet;
 import org.altviews.core.*;
 import org.altviews.intellij.ui.mxGraphUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import javax.swing.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.util.*;
 
 /**
@@ -338,4 +349,35 @@ public class AVSwingGraph implements AVGraph {
             graph.getModel().endUpdate();
         }
     }
+
+    @Override
+    public void exportToSVG(File file) {
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        try {
+            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+            // root elements
+            Document doc = docBuilder.newDocument();
+
+            Element rootElement = doc.createElement("svg");
+            doc.appendChild(rootElement);
+
+            mxSvgCanvas canvas = new mxSvgCanvas(doc);
+            graph.drawGraph(canvas);
+
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            DOMSource source = new DOMSource(doc);
+            StreamResult result = new StreamResult(file);
+
+            // Output to console for testing
+//            StreamResult result = new StreamResult(System.out);
+
+            transformer.transform(source, result);
+        } catch (Exception e1) {
+            // TODO
+            throw new RuntimeException(e1);
+        }
+    }
+
 }
