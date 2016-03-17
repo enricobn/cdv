@@ -19,7 +19,7 @@ import org.altviews.intellij.core.AVJavIdeaModuleTypeProvider;
 import org.altviews.intellij.core.AVJavaIDEADependenciesFinder;
 import org.altviews.intellij.core.AVJavaIDEAModuleNavigator;
 import org.altviews.intellij.ui.AVIDEAFileSaveChooser;
-import org.altviews.intellij.ui.AVJavaIDEAClassChooser;
+import org.altviews.intellij.ui.AVJavaIDEAModuleChooser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,11 +44,12 @@ public class AVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
         this.writer = new AVGraphFileWriter();
 
         this.panel = new AVSwingEditor(
-                new AVJavaIDEAClassChooser(project),
+                new AVJavaIDEAModuleChooser(project),
                 new AVJavaIDEAModuleNavigator(project),
                 new AVJavaIDEADependenciesFinder(project),
                 new AVJavIdeaModuleTypeProvider(project),
-                new AVIDEAFileSaveChooser(project), false);
+                new AVIDEAFileSaveChooser(project),
+                false);
     }
 
     public void save() {

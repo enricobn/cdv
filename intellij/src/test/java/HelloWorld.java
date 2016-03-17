@@ -6,7 +6,7 @@ import javax.swing.*;
 
 import org.altviews.core.*;
 import org.altviews.intellij.ui.editor.AVSwingEditor;
-import org.altviews.ui.AVClassChooser;
+import org.altviews.ui.AVModuleChooser;
 import org.altviews.ui.AVFileSaveChooser;
 
 import java.io.File;
@@ -28,11 +28,17 @@ public class HelloWorld extends JFrame
         final AVModule third = new AVModuleDummy("org.altviews.ThirdClass");
         final AVModule first = new AVModuleDummy("org.altviews.FirstClass", new AVModule[]{second, third});
 
-        AVClassChooser chooser = new AVClassChooser() {
+        AVModuleChooser moduleChooser = new AVModuleChooser() {
             @Override
             public AVModule show(String title) {
                 return first;
             }
+
+            @Override
+            public AVModule show(String title, Collection<AVModule> modules) {
+                return first;
+            }
+
         };
         AVModuleNavigator navigator = new AVModuleNavigator() {
             @Override
@@ -61,7 +67,7 @@ public class HelloWorld extends JFrame
                 return new File("test." + suffix);
             }
         };
-        getContentPane().add(new AVSwingEditor(chooser, navigator, finder, typeProvider,
+        getContentPane().add(new AVSwingEditor(moduleChooser, navigator, finder, typeProvider,
                 saveChooser, false));
     }
 

@@ -9,6 +9,7 @@ import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxStylesheet;
 import org.altviews.core.*;
 import org.altviews.intellij.ui.mxGraphUtils;
+import org.altviews.ui.AVModuleChooser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -27,6 +28,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.*;
+import java.util.List;
 
 /**
  * Created by enrico on 3/8/16.
@@ -39,16 +41,18 @@ public class AVSwingGraph implements AVGraph {
     private final AVModuleNavigator navigator;
     private final AVDependenciesFinder finder;
     private final AVModuleTypeProvider typeProvider;
+    private final AVModuleChooser moduleChooser;
     private final mxGraph graph;
     private final boolean horizontal;
     private final boolean editable;
     private final mxGraphComponent graphComponent;
 
     public AVSwingGraph(AVModuleNavigator navigator, AVDependenciesFinder finder,
-                        AVModuleTypeProvider typeProvider, boolean horizontal, boolean editable) {
+                        AVModuleTypeProvider typeProvider, AVModuleChooser moduleChooser, boolean horizontal, boolean editable) {
         this.navigator = navigator;
         this.finder = finder;
         this.typeProvider = typeProvider;
+        this.moduleChooser = moduleChooser;
         this.horizontal = horizontal;
         this.editable = editable;
 
@@ -194,14 +198,34 @@ public class AVSwingGraph implements AVGraph {
                 }
 
                 if (!dependencies.isEmpty()) {
+                    final List<AVModule> modules = new ArrayList<AVModule>();
+                    for (final AVModuleDependency dep : dependencies) {
+                        modules.add(dep.getModule());
+                    }
+
+                    Collections.sort(modules, new Comparator<AVModule>() {
+                        @Override
+                        public int compare(AVModule o1, AVModule o2) {
+                            return o1.getSimpleName().compareTo(o2.getSimpleName());
+                        }
+                    });
+
+                    popup.add(item = new JMenuItem("Add ..."));
+                    item.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            final AVModule module = moduleChooser.show("Add module", modules);
+                            if (module != null) {
+                                addModule(module);
+                            }
+                        }
+                    });
+                    popup.addSeparator();
+
                     popup.add(item = new JMenuItem("Add all"));
                     item.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            Collection<AVModule> modules = new ArrayList<AVModule>();
-                            for (final AVModuleDependency dep : dependencies) {
-                                modules.add(dep.getModule());
-                            }
                             addModules(modules);
                         }
                     });

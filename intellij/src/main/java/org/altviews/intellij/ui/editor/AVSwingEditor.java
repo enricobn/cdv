@@ -1,7 +1,7 @@
 package org.altviews.intellij.ui.editor;
 
 import org.altviews.core.*;
-import org.altviews.ui.AVClassChooser;
+import org.altviews.ui.AVModuleChooser;
 import org.altviews.ui.AVFileSaveChooser;
 
 import javax.swing.*;
@@ -14,14 +14,15 @@ import java.io.File;
  * Created by enrico on 3/8/16.
  */
 public class AVSwingEditor extends JPanel {
-    private final AVClassChooser classChooser;
+    private final AVModuleChooser moduleChooser;
     private final AVSwingGraph component;
 
-    public AVSwingEditor(AVClassChooser classChooser, AVModuleNavigator navigator, AVDependenciesFinder finder,
-                         AVModuleTypeProvider typeProvider, final AVFileSaveChooser saveChooser, boolean horizontal) {
-        this.classChooser = classChooser;
+    public AVSwingEditor(AVModuleChooser moduleChooser, AVModuleNavigator navigator, AVDependenciesFinder finder,
+                         AVModuleTypeProvider typeProvider, final AVFileSaveChooser saveChooser,
+                         boolean horizontal) {
+        this.moduleChooser = moduleChooser;
         component = new AVSwingGraph(navigator, finder, typeProvider,
-                horizontal, true);
+                moduleChooser, horizontal, true);
 
         {
             JButton addFileButton = new JButton("Add");
@@ -86,7 +87,7 @@ public class AVSwingEditor extends JPanel {
     }
 
     private void addFile() {
-        final AVModule module = classChooser.show("Add class");
+        final AVModule module = moduleChooser.show("Add module");
         if (module != null) {
             component.addModule(module);
         }
