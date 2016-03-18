@@ -9,6 +9,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.Collection;
 
 /**
  * Created by enrico on 3/8/16.
@@ -119,6 +120,10 @@ public class AVSwingEditor extends JPanel {
 
     public void addModule(AVModule module) {
         component.addModule(module);
+    }
+
+    public void addModules(Collection<AVModule> modules) {
+        component.addModules(modules);
     }
 
     public void addListener(AVFileEditorComponentListener listener) {

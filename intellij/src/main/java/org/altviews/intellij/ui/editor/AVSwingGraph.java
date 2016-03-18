@@ -366,7 +366,6 @@ public class AVSwingGraph implements AVGraph {
         return Collections.unmodifiableSet(modules);
     }
 
-    @Override
     public void clear() {
         modules.clear();
         graph.getModel().beginUpdate();

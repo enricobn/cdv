@@ -2,7 +2,6 @@ package org.altviews.core;
 
 import org.apache.commons.io.IOUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
@@ -28,12 +27,6 @@ public class AVGraphFileReader {
             public Set<AVModule> getModules() {
                 return modules;
             }
-
-            @Override
-            public void clear() {
-                throw new UnsupportedOperationException();
-            }
-
         };
     }
 }

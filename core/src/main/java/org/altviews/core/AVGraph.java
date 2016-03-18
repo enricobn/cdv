@@ -1,6 +1,5 @@
 package org.altviews.core;
 
-import java.io.File;
 import java.util.Set;
 
 /**
@@ -9,7 +8,5 @@ import java.util.Set;
 public interface AVGraph {
 
     Set<AVModule> getModules();
-
-    void clear();
 
 }

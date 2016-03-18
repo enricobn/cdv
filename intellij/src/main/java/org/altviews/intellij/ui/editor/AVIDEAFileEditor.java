@@ -72,9 +72,7 @@ public class AVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
         AVGraphFileReader reader = new AVGraphFileReader();
         try (final InputStream inputStream = virtualFile.getInputStream()) {
             final AVGraph graph = reader.read(inputStream);
-            for (AVModule module : graph.getModules()) {
-                panel.addModule(module);
-            }
+            panel.addModules(graph.getModules());
         } catch (IOException e) {
             // TODO something better in Intellij?
             throw new RuntimeException(e);
