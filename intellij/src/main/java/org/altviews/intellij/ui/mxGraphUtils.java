@@ -2,6 +2,7 @@ package org.altviews.intellij.ui;
 
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.util.mxPoint;
+import com.mxgraph.util.mxRectangle;
 import com.mxgraph.view.mxGraph;
 
 /**
@@ -22,6 +23,16 @@ public abstract class mxGraphUtils {
             if (geometry.getY() < miny) {
                 miny = geometry.getY();
             }
+            for (Object edge : graph.getEdges(vertex)) {
+                mxRectangle rect = graph.getBoundingBox(edge);
+                if (rect.getX() < minx) {
+                    minx = rect.getX();
+                }
+                if (rect.getY() < miny) {
+                    miny = rect.getY();
+                }
+            }
+
         }
 
         graph.getView().setTranslate(new mxPoint(x - minx, y - miny));

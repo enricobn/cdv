@@ -150,9 +150,9 @@ public class AVJavaIDEADependenciesFinder implements AVDependenciesFinder {
             return;
         }
 
-        final PsiFile[] files = FilenameIndex.getFilesByName(dep.getProject(), dep.getName() + ".java",
-                GlobalSearchScope.projectScope(dep.getProject()));
-        if (files.length > 0) {
+        if (dep.getContainingFile() != null &&
+                dep.getContainingFile().getFileType().getDefaultExtension().equals("java") &&
+                dep.getQualifiedName() != null) {
             final AVModule module = new AVModuleImpl(dep.getQualifiedName());
             result.add(new AVModuleDependencyImpl(module));
         }
