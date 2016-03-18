@@ -12,6 +12,4 @@ public interface AVGraph {
 
     void clear();
 
-    void exportToSVG(File file);
-
 }

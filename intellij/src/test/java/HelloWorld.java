@@ -24,19 +24,21 @@ public class HelloWorld extends JFrame
     public HelloWorld()
     {
         super("Hello, World!");
-        final AVModule second = new AVModuleDummy("org.altviews.SecondClass");
-        final AVModule third = new AVModuleDummy("org.altviews.ThirdClass");
-        final AVModule first = new AVModuleDummy("org.altviews.FirstClass", new AVModule[]{second, third});
+        final AVModule m5 = new AVModuleDummy("org.altviews.5");
+        final AVModule m4 = new AVModuleDummy("org.altviews.4");
+        final AVModule m2 = new AVModuleDummy("org.altviews.2", new AVModule[]{m4,m5});
+        final AVModule m3 = new AVModuleDummy("org.altviews.3");
+        final AVModule m1 = new AVModuleDummy("org.altviews.1", new AVModule[]{m2, m3});
 
         AVModuleChooser moduleChooser = new AVModuleChooser() {
             @Override
             public AVModule show(String title) {
-                return first;
+                return m1;
             }
 
             @Override
             public AVModule show(String title, Collection<AVModule> modules) {
-                return first;
+                return m1;
             }
 
         };
@@ -55,7 +57,7 @@ public class HelloWorld extends JFrame
         AVModuleTypeProvider typeProvider = new AVModuleTypeProvider() {
             @Override
             public AVModuleType getType(AVModule module) {
-                if (module.equals(first)) {
+                if (module.equals(m1)) {
                     return AVModuleType.Interface;
                 }
                 return AVModuleType.Class;

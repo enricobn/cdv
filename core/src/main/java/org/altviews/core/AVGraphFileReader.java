@@ -34,11 +34,6 @@ public class AVGraphFileReader {
                 throw new UnsupportedOperationException();
             }
 
-            @Override
-            public void exportToSVG(File file) {
-                throw new UnsupportedOperationException();
-            }
-
         };
     }
 }

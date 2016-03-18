@@ -4,6 +4,7 @@ import com.mxgraph.canvas.mxSvgCanvas;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.util.mxCellRenderer;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxStylesheet;
@@ -13,6 +14,8 @@ import org.altviews.ui.AVModuleChooser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import javax.imageio.ImageIO;
+import javax.imageio.stream.FileImageOutputStream;
 import javax.swing.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -26,7 +29,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.List;
 
@@ -242,9 +247,7 @@ public class AVSwingGraph implements AVGraph {
                     });
                 }
 
-
-
-                if (popup.getSubElements().length > 0) {
+                if (!dependencies.isEmpty()) {
                     popup.addSeparator();
                 }
                 popup.add(item = new JMenuItem("Delete"));
@@ -374,7 +377,6 @@ public class AVSwingGraph implements AVGraph {
         }
     }
 
-    @Override
     public void exportToSVG(File file) {
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         try {
@@ -401,6 +403,16 @@ public class AVSwingGraph implements AVGraph {
         } catch (Exception e1) {
             // TODO
             throw new RuntimeException(e1);
+        }
+    }
+
+    public void exportToPng(File file) {
+        BufferedImage img = mxCellRenderer.createBufferedImage(graph, null, 1, Color.WHITE, false, null);
+        try {
+            ImageIO.write(img, "png", new FileImageOutputStream(file));
+        } catch (IOException e) {
+            // TODO
+            throw new RuntimeException(e);
         }
     }
 
