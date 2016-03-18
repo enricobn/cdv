@@ -17,12 +17,8 @@ public class TimedQueueThread<T> {
         this.millis = millis;
     }
 
-    public void add(T element) {
-        if (!queue.isEmpty()) {
-            if (queue.peek().equals(element)) {
-                return;
-            }
-        }
+    public synchronized void add(T element) {
+        queue.clear();
         queue.add(element);
     }
 
@@ -37,8 +33,15 @@ public class TimedQueueThread<T> {
                         Thread.currentThread().interrupt();
                         running = false;
                     }
-                    if (!queue.isEmpty()) {
-                        runnable.run(queue.remove());
+
+                    T element = null;
+                    synchronized (this) {
+                        if (!queue.isEmpty()) {
+                            element = queue.remove();
+                        }
+                    }
+                    if (element != null) {
+                        runnable.run(element);
                     }
                 }
             }
