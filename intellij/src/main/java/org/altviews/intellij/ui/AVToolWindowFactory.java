@@ -44,7 +44,6 @@ public class AVToolWindowFactory implements ToolWindowFactory {
     private TimedQueueThread<VirtualFile> queue;
     private Project project;
     private AVSwingGraph component;
-    private ToolWindow toolWindow;
 
     public AVToolWindowFactory() {
     }
@@ -53,7 +52,6 @@ public class AVToolWindowFactory implements ToolWindowFactory {
     public void createToolWindowContent(@NotNull final Project project, @NotNull final ToolWindow toolWindow) {
         logger.info("AVToolWindowFactory.createToolWindowContent");
         this.project = project;
-        this.toolWindow = toolWindow;
 
         component = new AVSwingGraph(
                 new AVJavaIDEAModuleNavigator(project),
