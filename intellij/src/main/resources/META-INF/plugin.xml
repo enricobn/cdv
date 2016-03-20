@@ -30,6 +30,8 @@
     <fileEditorProvider implementation="org.altviews.intellij.ui.editor.AVIDEAEditorProvider"/>
     <fileTypeFactory implementation="org.altviews.intellij.ui.editor.AVIDEAEditorProvider"/>
     <fileTypeFactory implementation="org.altviews.intellij.ui.editor.AVIDEAFileTypeFactory"/>
+    <projectConfigurable instance="org.altviews.intellij.ui.AVConfigurationPanel"/>
+    <projectService serviceImplementation="org.altviews.intellij.core.AVConfiguration"/>
   </extensions>
 
   <application-components>

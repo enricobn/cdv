@@ -97,7 +97,7 @@ public class AVJavaIDEADependenciesFinder implements AVDependenciesFinder {
         return result;
     }
 
-    private static void addDependency(final Set<AVModuleDependency> result, final PsiReference dep) {
+    private void addDependency(final Set<AVModuleDependency> result, final PsiReference dep) {
 //        logger.info("AVJavaIDEADependenciesFinder.addDependency " + dep);
         if (dep == null) {
             return;
@@ -118,7 +118,7 @@ public class AVJavaIDEADependenciesFinder implements AVDependenciesFinder {
 
     }
 
-    private static void addDependency(final Set<AVModuleDependency> result, final PsiTypeElement dep) {
+    private void addDependency(final Set<AVModuleDependency> result, final PsiTypeElement dep) {
 //        logger.info("AVJavaIDEADependenciesFinder.addDependency " + dep);
         if (dep == null) {
             return;
@@ -144,17 +144,57 @@ public class AVJavaIDEADependenciesFinder implements AVDependenciesFinder {
         });
     }
 
-    private static void addDependency(Set<AVModuleDependency> result, PsiClass dep) {
+    private void addDependency(Set<AVModuleDependency> result, PsiClass dep) {
 //        logger.info("AVJavaIDEADependenciesFinder.addDependency " + dep);
         if (dep == null) {
             return;
         }
 
-        if (dep.getContainingFile() != null &&
-                dep.getContainingFile().getFileType().getDefaultExtension().equals("java") &&
-                dep.getQualifiedName() != null) {
+        if (dep.getContainingFile() == null || dep.getQualifiedName() == null) {
+            return;
+        }
+
+        final AVConfiguration.State config = AVConfiguration.getConfig(project).getState();
+
+        boolean valid;
+        if (config != null && !config.includes.isEmpty()) {
+            valid = false;
+            for (String include : config.includes) {
+                if (dep.getQualifiedName().toLowerCase().contains(include)) {
+                    valid = true;
+                    break;
+                }
+            }
+        } else {
+            valid = true;
+        }
+
+        if (!valid) {
+            return;
+        }
+
+        if (config != null && !config.excludes.isEmpty()) {
+            valid = true;
+            for (String exclude : config.excludes) {
+                if (dep.getQualifiedName().toLowerCase().contains(exclude)) {
+                    valid = false;
+                    break;
+                }
+            }
+        } else {
+            valid = true;
+        }
+
+        if (valid) {
             final AVModule module = new AVModuleImpl(dep.getQualifiedName());
             result.add(new AVModuleDependencyImpl(module));
         }
+
+//        if (dep.getContainingFile() != null &&
+//                dep.getContainingFile().getFileType().getDefaultExtension().equals("java") &&
+//                dep.getQualifiedName() != null) {
+//            final AVModule module = new AVModuleImpl(dep.getQualifiedName());
+//            result.add(new AVModuleDependencyImpl(module));
+//        }
     }
 }
