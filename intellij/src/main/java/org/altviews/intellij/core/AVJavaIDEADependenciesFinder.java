@@ -11,9 +11,12 @@ import org.altviews.intellij.AVJavaIDEAUtils;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by enrico on 3/10/16.
@@ -158,13 +161,7 @@ public class AVJavaIDEADependenciesFinder implements AVDependenciesFinder {
 
         boolean valid;
         if (config != null && !config.includes.isEmpty()) {
-            valid = false;
-            for (String include : config.includes) {
-                if (dep.getQualifiedName().toLowerCase().contains(include)) {
-                    valid = true;
-                    break;
-                }
-            }
+            valid = match(dep.getQualifiedName(), config.includes);
         } else {
             valid = true;
         }
@@ -174,13 +171,7 @@ public class AVJavaIDEADependenciesFinder implements AVDependenciesFinder {
         }
 
         if (config != null && !config.excludes.isEmpty()) {
-            valid = true;
-            for (String exclude : config.excludes) {
-                if (dep.getQualifiedName().toLowerCase().contains(exclude)) {
-                    valid = false;
-                    break;
-                }
-            }
+            valid = !match(dep.getQualifiedName(), config.excludes);
         } else {
             valid = true;
         }
@@ -189,12 +180,16 @@ public class AVJavaIDEADependenciesFinder implements AVDependenciesFinder {
             final AVModule module = new AVModuleImpl(dep.getQualifiedName());
             result.add(new AVModuleDependencyImpl(module));
         }
+    }
 
-//        if (dep.getContainingFile() != null &&
-//                dep.getContainingFile().getFileType().getDefaultExtension().equals("java") &&
-//                dep.getQualifiedName() != null) {
-//            final AVModule module = new AVModuleImpl(dep.getQualifiedName());
-//            result.add(new AVModuleDependencyImpl(module));
-//        }
+    private static boolean match(String value, Collection<String> expressions) {
+        for (String s : expressions) {
+            final Pattern pattern = Pattern.compile(s);
+            final Matcher matcher = pattern.matcher(value);
+            if (matcher.find()) {
+                return true;
+            }
+        }
+        return false;
     }
 }
