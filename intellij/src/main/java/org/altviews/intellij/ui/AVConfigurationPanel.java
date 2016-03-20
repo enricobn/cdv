@@ -42,35 +42,53 @@ public class AVConfigurationPanel extends JPanel implements Configurable, Docume
     public AVConfigurationPanel(Project project) {
         this.project = project;
 
-        includes.setRows(10);
-        includes.setColumns(30);
+//        includes.setRows(10);
+//        includes.setColumns(30);
+        includes.setMaximumSize(new Dimension(300, 300));
 
-        excludes.setRows(10);
-        excludes.setColumns(30);
+//        excludes.setRows(10);
+//        excludes.setColumns(30);
+        excludes.setMaximumSize(new Dimension(300, 300));
 
         setLayout(new GridBagLayout());
+
         {
             GridBagConstraints gbc = new GridBagConstraints();
             gbc.anchor = GridBagConstraints.NORTHWEST;
+            gbc.insets.left = 10;
+            gbc.insets.top = 10;
+            gbc.insets.bottom = 5;
             add(includesLabel, gbc);
 
             gbc = new GridBagConstraints();
             gbc.anchor = GridBagConstraints.NORTHWEST;
             gbc.gridy = 1;
+            gbc.weighty = 1.0;
+            gbc.weightx = 1.0;
             gbc.fill = GridBagConstraints.BOTH;
+            gbc.insets.left = 10;
+            gbc.insets.right = 10;
             add(includes, gbc);
         }
+
         {
             GridBagConstraints gbc = new GridBagConstraints();
             gbc.anchor = GridBagConstraints.NORTHWEST;
             gbc.gridy = 2;
+            gbc.insets.left = 10;
             gbc.insets.top = 10;
+            gbc.insets.bottom = 5;
             add(excludesLabel, gbc);
 
             gbc = new GridBagConstraints();
             gbc.anchor = GridBagConstraints.NORTHWEST;
             gbc.gridy = 3;
+            gbc.weighty = 1.0;
+            gbc.weightx = 1.0;
             gbc.fill = GridBagConstraints.BOTH;
+            gbc.insets.left = 10;
+            gbc.insets.bottom = 10;
+            gbc.insets.right = 10;
             add(excludes, gbc);
         }
     }
@@ -115,7 +133,7 @@ public class AVConfigurationPanel extends JPanel implements Configurable, Docume
                 includesList.add(s);
             }
         }
-        configuration.includes = includesList;
+        configuration.setIncludes(includesList);
 
         split = excludes.getText().split("\n");
         java.util.List<String> excludesList = new ArrayList<>();
@@ -124,7 +142,7 @@ public class AVConfigurationPanel extends JPanel implements Configurable, Docume
                 excludesList.add(s);
             }
         }
-        configuration.excludes = excludesList;
+        configuration.setExcludes(excludesList);
         modified = false;
     }
 
@@ -133,7 +151,7 @@ public class AVConfigurationPanel extends JPanel implements Configurable, Docume
         AVConfiguration.State configuration = getState();
 
         StringBuilder sb = new StringBuilder();
-        for (String s : configuration.includes) {
+        for (String s : configuration.getIncludes()) {
             if (sb.length() > 0) {
                 sb.append('\n');
             }
@@ -142,7 +160,7 @@ public class AVConfigurationPanel extends JPanel implements Configurable, Docume
         includes.setText(sb.toString());
 
         sb = new StringBuilder();
-        for (String s : configuration.excludes) {
+        for (String s : configuration.getExcludes()) {
             if (sb.length() > 0) {
                 sb.append('\n');
             }

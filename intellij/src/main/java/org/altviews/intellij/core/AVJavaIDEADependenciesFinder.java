@@ -3,16 +3,12 @@ package org.altviews.intellij.core;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
-import com.intellij.psi.search.FilenameIndex;
-import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTypesUtil;
 import org.altviews.core.*;
 import org.altviews.intellij.AVJavaIDEAUtils;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -159,27 +155,11 @@ public class AVJavaIDEADependenciesFinder implements AVDependenciesFinder {
 
         final AVConfiguration.State config = AVConfiguration.getConfig(project).getState();
 
-        boolean valid;
-        if (config != null && !config.includes.isEmpty()) {
-            valid = match(dep.getQualifiedName(), config.includes);
-        } else {
-            valid = true;
-        }
-
-        if (!valid) {
+        if (config != null && !config.isValid(dep.getQualifiedName())) {
             return;
         }
-
-        if (config != null && !config.excludes.isEmpty()) {
-            valid = !match(dep.getQualifiedName(), config.excludes);
-        } else {
-            valid = true;
-        }
-
-        if (valid) {
-            final AVModule module = new AVModuleImpl(dep.getQualifiedName());
-            result.add(new AVModuleDependencyImpl(module));
-        }
+        final AVModule module = new AVModuleImpl(dep.getQualifiedName());
+        result.add(new AVModuleDependencyImpl(module));
     }
 
     private static boolean match(String value, Collection<String> expressions) {
