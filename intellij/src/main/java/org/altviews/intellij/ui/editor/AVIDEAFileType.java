@@ -1,6 +1,7 @@
 package org.altviews.intellij.ui.editor;
 
 import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,8 +14,10 @@ import javax.swing.*;
 public class AVIDEAFileType implements FileType {
     public static final AVIDEAFileType INSTANCE = new AVIDEAFileType();
     public static final String DEFAULT_EXTENSION = "av";
+    private final Icon icon;
 
     private AVIDEAFileType() {
+        icon = IconLoader.getIcon("/org/altviews/intellij/ui/fileType.png");
     }
 
     @NotNull
@@ -38,7 +41,7 @@ public class AVIDEAFileType implements FileType {
     @Nullable
     @Override
     public Icon getIcon() {
-        return null;
+        return icon;
     }
 
     @Override

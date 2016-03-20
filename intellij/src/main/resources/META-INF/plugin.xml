@@ -43,7 +43,9 @@
   </project-components>
 
   <actions>
-    <!-- Add your actions here -->
+    <action id="newAVFile" class="org.altviews.intellij.ui.AVNewFileAction" text="AV">
+      <add-to-group group-id="NewGroup" anchor="first"/>
+    </action>
   </actions>
 
 </idea-plugin>
