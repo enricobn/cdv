@@ -9,4 +9,6 @@ public interface AVModule {
 
     String getFullName();
 
+    String getNamespace();
+
 }

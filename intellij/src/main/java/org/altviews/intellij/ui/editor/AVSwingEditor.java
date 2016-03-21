@@ -23,7 +23,7 @@ public class AVSwingEditor extends JPanel {
                          boolean horizontal) {
         this.moduleChooser = moduleChooser;
         component = new AVSwingGraph(navigator, finder, typeProvider,
-                moduleChooser, horizontal, true);
+                moduleChooser, horizontal, true, AVSwingGraph.AVSwingGraphType.Modules);
 
         {
             JButton addFileButton = new JButton("Add");

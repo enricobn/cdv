@@ -81,16 +81,15 @@ public class HelloWorld extends JFrame
         frame.setVisible(true);
     }
 
-    private static class AVModuleDummy implements AVModule, Serializable {
-        private final String fullName;
+    private static class AVModuleDummy extends AVModuleImpl implements Serializable {
         private final Set<AVModuleDependency> dependencies = new HashSet<>();
 
         private AVModuleDummy(String fullName) {
-            this.fullName = fullName;
+            super(fullName);
         }
 
         private AVModuleDummy(String fullName, AVModule[] deps) {
-            this.fullName = fullName;
+            super(fullName);
             for (AVModule dep : deps) {
                 dependencies.add(new AVModuleDependencyDummy(dep));
             }
@@ -100,20 +99,6 @@ public class HelloWorld extends JFrame
             return dependencies;
         }
 
-        @Override
-        public String getSimpleName() {
-            return fullName.substring(fullName.lastIndexOf('.') + 1);
-        }
-
-        @Override
-        public String getFullName() {
-            return fullName;
-        }
-
-        @Override
-        public String toString() {
-            return getSimpleName();
-        }
     }
 
     private static class AVModuleDependencyDummy implements AVModuleDependency, Serializable {

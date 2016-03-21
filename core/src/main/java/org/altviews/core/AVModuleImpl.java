@@ -27,6 +27,15 @@ public class AVModuleImpl implements AVModule,Serializable {
     }
 
     @Override
+    public String getNamespace() {
+        int index = getFullName().lastIndexOf('.');
+        if (index < 0) {
+            return "";
+        }
+        return getFullName().substring(0, index);
+    }
+
+    @Override
     public String toString() {
         return getSimpleName();
     }

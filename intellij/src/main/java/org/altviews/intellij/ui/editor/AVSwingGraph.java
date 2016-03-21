@@ -39,6 +39,10 @@ import java.util.List;
  * Created by enrico on 3/8/16.
  */
 public class AVSwingGraph implements AVGraph {
+    public enum AVSwingGraphType {
+        Modules,
+        Namespaces
+    }
     private static final String INTERFACE_STYLE = "INTERFACE";
     private static final String CLASS_STYLE = "CLASS";
     private final Set<AVModule> modules = new HashSet<>();
@@ -51,15 +55,17 @@ public class AVSwingGraph implements AVGraph {
     private final boolean horizontal;
     private final boolean editable;
     private final mxGraphComponent graphComponent;
+    private AVSwingGraphType type;
 
     public AVSwingGraph(AVModuleNavigator navigator, AVDependenciesFinder finder,
-                        AVModuleTypeProvider typeProvider, AVModuleChooser moduleChooser, boolean horizontal, boolean editable) {
+                        AVModuleTypeProvider typeProvider, AVModuleChooser moduleChooser, boolean horizontal, boolean editable, AVSwingGraphType type) {
         this.navigator = navigator;
         this.finder = finder;
         this.typeProvider = typeProvider;
         this.moduleChooser = moduleChooser;
         this.horizontal = horizontal;
-        this.editable = editable;
+        this.editable = editable || AVSwingGraphType.Namespaces.equals(type);
+        this.type = type;
 
         graph = new mxGraph() {
             public boolean isCellSelectable(Object cell)
