@@ -17,12 +17,18 @@ import java.util.regex.Pattern;
  */
 //@Storage(id="altViews", file = StoragePathMacros.APP_CONFIG + "/altViews.xml")
 @State(name = "AVConfiguration", storages = {@com.intellij.openapi.components.Storage(file = "$WORKSPACE_FILE$")})
-public class AVConfiguration implements PersistentStateComponent<AVConfiguration.State> {
+public final class AVConfiguration implements PersistentStateComponent<AVConfiguration.State> {
     public static class State {
         private List<String> includes = new ArrayList<>();
         private List<String> excludes = new ArrayList<>();
         private List<Pattern> includesPatterns = new ArrayList<>();
         private List<Pattern> excludesPatterns = new ArrayList<>();
+
+        public State() {
+            List<String> excludes = new ArrayList<>();
+            excludes.add("^com.java");
+            setExcludes(excludes);
+        }
 
         public List<String> getIncludes() {
             return includes;
