@@ -101,7 +101,7 @@ public class AVToolWindowFactory implements ToolWindowFactory {
 
             @Override
             public void stateChanged() {
-                if (toolWindow.isVisible()) {
+                if (toolWindow.isAvailable() && toolWindow.isVisible()) {
                     refreshSelectedFile();
                 }
             }
