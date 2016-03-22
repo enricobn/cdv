@@ -26,7 +26,8 @@ public final class AVConfiguration implements PersistentStateComponent<AVConfigu
 
         public State() {
             List<String> excludes = new ArrayList<>();
-            excludes.add("^com.java");
+            excludes.add("^java.");
+            excludes.add("^javax.");
             setExcludes(excludes);
         }
 
