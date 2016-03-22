@@ -29,7 +29,9 @@ import org.altviews.intellij.AVJavaIDEAUtils;
 import org.altviews.intellij.core.AVJavIdeaModuleTypeProvider;
 import org.altviews.intellij.core.AVJavaIDEADependenciesFinder;
 import org.altviews.intellij.core.AVJavaIDEAModuleNavigator;
+import org.altviews.intellij.core.AVJavaIDEANamespaceNavigator;
 import org.altviews.intellij.ui.editor.AVSwingGraph;
+import org.altviews.intellij.ui.editor.AVSwingTabContainer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -43,7 +45,7 @@ public class AVToolWindowFactory implements ToolWindowFactory {
     private static final Logger logger = Logger.getInstance(AVToolWindowFactory.class);
     private TimedQueueThread<VirtualFile> queue;
     private Project project;
-    private AVSwingGraph component;
+    private AVSwingTabContainer component;
 
     public AVToolWindowFactory() {
     }
@@ -53,16 +55,17 @@ public class AVToolWindowFactory implements ToolWindowFactory {
         logger.info("AVToolWindowFactory.createToolWindowContent");
         this.project = project;
 
-        component = new AVSwingGraph(
+        component = new AVSwingTabContainer(
                 new AVJavaIDEAModuleNavigator(project),
                 new AVJavaIDEADependenciesFinder(project),
                 new AVJavIdeaModuleTypeProvider(project),
                 new AVJavaIDEAModuleChooser(project),
-                false,
-                false, AVSwingGraph.AVSwingGraphType.Modules);
+                new AVJavaIDEANamespaceNavigator(project),
+                true,
+                false);
 
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-        final Content content = contentFactory.createContent(component.getComponent(), "", false);
+        final Content content = contentFactory.createContent(component, "", false);
         toolWindow.getContentManager().addContent(content);
 
         queue = new TimedQueueThread<>(new TimedQueueThread.ElementRunnable<VirtualFile>() {

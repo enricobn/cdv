@@ -26,9 +26,9 @@ public class HelloWorld extends JFrame
         super("Hello, World!");
         final AVModule m5 = new AVModuleDummy("org.altviews.5");
         final AVModule m4 = new AVModuleDummy("org.altviews.4");
-        final AVModule m2 = new AVModuleDummy("org.altviews.2", new AVModule[]{m4,m5});
+        final AVModule m2 = new AVModuleDummy("org.altviews.core.2", new AVModule[]{m4,m5});
         final AVModule m3 = new AVModuleDummy("org.altviews.3");
-        final AVModule m1 = new AVModuleDummy("org.altviews.1", new AVModule[]{m2, m3});
+        final AVModule m1 = new AVModuleDummy("org.altviews.ui.1", new AVModule[]{m2, m3});
 
         AVModuleChooser moduleChooser = new AVModuleChooser() {
             @Override
@@ -69,8 +69,16 @@ public class HelloWorld extends JFrame
                 return new File("test." + suffix);
             }
         };
+
+        AVNamespaceNavigator nsNavigator = new AVNamespaceNavigator() {
+            @Override
+            public void navigateTo(String namespace) {
+
+            }
+        };
+
         getContentPane().add(new AVSwingEditor(moduleChooser, navigator, finder, typeProvider,
-                saveChooser, false));
+                saveChooser, nsNavigator, false));
     }
 
     public static void main(String[] args)

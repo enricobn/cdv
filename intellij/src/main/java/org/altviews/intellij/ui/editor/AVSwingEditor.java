@@ -16,14 +16,15 @@ import java.util.Collection;
  */
 public class AVSwingEditor extends JPanel {
     private final AVModuleChooser moduleChooser;
-    private final AVSwingGraph component;
+    private final AVSwingTabContainer component;
 
     public AVSwingEditor(AVModuleChooser moduleChooser, AVModuleNavigator navigator, AVDependenciesFinder finder,
                          AVModuleTypeProvider typeProvider, final AVFileSaveChooser saveChooser,
+                         AVNamespaceNavigator nsNavigator,
                          boolean horizontal) {
         this.moduleChooser = moduleChooser;
-        component = new AVSwingGraph(navigator, finder, typeProvider,
-                moduleChooser, horizontal, true, AVSwingGraph.AVSwingGraphType.Modules);
+        component = new AVSwingTabContainer(navigator, finder, typeProvider,
+                moduleChooser, nsNavigator, horizontal, true);
 
         {
             JButton addFileButton = new JButton("Add");
@@ -103,12 +104,12 @@ public class AVSwingEditor extends JPanel {
             gbc.gridwidth = 3;
             gbc.weightx = 1.0;
             gbc.weighty = 1.0;
-            add(component.getComponent(), gbc);
+            add(component, gbc);
         }
     }
 
     public AVGraph getGraph() {
-        return component;
+        return component.getGraph();
     }
 
     private void addFile() {
