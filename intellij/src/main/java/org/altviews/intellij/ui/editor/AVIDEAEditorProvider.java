@@ -56,7 +56,7 @@ public class AVIDEAEditorProvider extends FileTypeFactory implements FileEditorP
     @NotNull
     @Override
     public FileEditorPolicy getPolicy() {
-        return FileEditorPolicy.PLACE_BEFORE_DEFAULT_EDITOR;
+        return FileEditorPolicy.HIDE_DEFAULT_EDITOR;
     }
 
     @Override
