@@ -130,4 +130,8 @@ public class AVSwingEditor extends JPanel {
     public void addListener(AVFileEditorComponentListener listener) {
         component.addListener(listener);
     }
+
+    public void clear() {
+        component.clear();
+    }
 }

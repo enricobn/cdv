@@ -4,13 +4,11 @@ import com.intellij.codeHighlighting.BackgroundEditorHighlighter;
 import com.intellij.ide.structureView.StructureViewBuilder;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.SettingsSavingComponent;
-import com.intellij.openapi.fileEditor.FileEditor;
-import com.intellij.openapi.fileEditor.FileEditorLocation;
-import com.intellij.openapi.fileEditor.FileEditorState;
-import com.intellij.openapi.fileEditor.FileEditorStateLevel;
+import com.intellij.openapi.fileEditor.*;
+import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
-import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.*;
 import org.altviews.core.AVGraph;
 import org.altviews.core.AVGraphFileReader;
 import org.altviews.core.AVGraphFileWriter;
@@ -34,12 +32,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Created by enrico on 3/8/16.
  */
 public class AVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
+    private final Project project;
     private final VirtualFile virtualFile;
     private final AVSwingEditor panel;
     private final AVGraphFileWriter writer;
     private final AtomicBoolean loaded = new AtomicBoolean(false);
+    private boolean loading;
 
     public AVIDEAFileEditor(final Project project, final VirtualFile virtualFile) {
+        this.project = project;
         this.virtualFile = virtualFile;
 
         this.writer = new AVGraphFileWriter();
@@ -62,7 +63,7 @@ public class AVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
             @Override
             public void run() {
                 try {
-                    writer.write(panel.getGraph(), virtualFile.getOutputStream(null));
+                    writer.write(panel.getGraph(), virtualFile.getOutputStream(AVIDEAFileEditor.this));
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -71,23 +72,24 @@ public class AVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
     }
 
     private void loadFile() {
-        AVGraphFileReader reader = new AVGraphFileReader();
-        try (final InputStream inputStream = virtualFile.getInputStream()) {
-            final AVGraph graph = reader.read(inputStream);
-            panel.addModules(graph.getModules());
-        } catch (IOException e) {
-            // TODO something better in Intellij?
-            throw new RuntimeException(e);
-        }
-        panel.addListener(new AVFileEditorComponentListener() {
+        // it's run when index are ready
+        DumbService.getInstance(project).runWhenSmart(new Runnable() {
             @Override
-            public void onAdd(AVModule module) {
-                save();
-            }
-
-            @Override
-            public void onRemove(AVModule module) {
-                save();
+            public void run() {
+                try {
+                    loading = true;
+                    panel.clear();
+                    AVGraphFileReader reader = new AVGraphFileReader();
+                    try (final InputStream inputStream = virtualFile.getInputStream()) {
+                        final AVGraph graph = reader.read(inputStream);
+                        panel.addModules(graph.getModules());
+                    } catch (IOException e) {
+                        // TODO something better in Intellij?
+                        throw new RuntimeException(e);
+                    }
+                } finally {
+                    loading = false;
+                }
             }
         });
     }
@@ -123,6 +125,7 @@ public class AVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
 
     @Override
     public boolean isModified() {
+        // TODO
         return false;
     }
 
@@ -135,6 +138,40 @@ public class AVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
     public void selectNotify() {
         if (loaded.compareAndSet(false, true)) {
             loadFile();
+            panel.addListener(new AVFileEditorComponentListener() {
+                @Override
+                public void onAdd(AVModule module) {
+                    if (!loading) {
+                        save();
+                    }
+                }
+
+                @Override
+                public void onRemove(AVModule module) {
+                    if (!loading) {
+                        save();
+                    }
+                }
+            });
+            VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileAdapter() {
+                @Override
+                public void contentsChanged(@NotNull VirtualFileEvent event) {
+                    if (event.getFile().equals(virtualFile) && event.isFromRefresh() &&
+                            event.getRequestor() != AVIDEAFileEditor.this) {
+                        loadFile();
+                    }
+                }
+
+                @Override
+                public void fileDeleted(@NotNull VirtualFileEvent event) {
+
+                }
+
+                @Override
+                public void fileMoved(@NotNull VirtualFileMoveEvent event) {
+
+                }
+            });
         }
     }
 
