@@ -1,29 +1,77 @@
 package org.altviews.core;
 
 import org.apache.commons.io.IOUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
-import java.io.IOException;
-import java.io.InputStream;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * Created by enrico on 3/9/16.
  */
 public class AVGraphFileWriter {
+    public static final String VERSION = "1.0.0";
+    public static final String ROOT_ELEMENT_NAME = "graph";
+    public static final String MODULES_ELEMENT = "modules";
+    public static final String MODULE_ELEMENT = "module";
+    public static final String FULLNAME_ATTRIBUTE = "fullName";
+    public static final String VERSION_ATTRIBUTE = "version";
 
-    public void write(AVGraph graph, OutputStream os) throws IOException {
-        List<String> lines = new ArrayList<>();
+    public void write(AVGraph graph, OutputStream os) throws Exception {
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+
+        // root elements
+        Document doc = docBuilder.newDocument();
+        Element rootElement = doc.createElement(ROOT_ELEMENT_NAME);
+        rootElement.setAttribute(VERSION_ATTRIBUTE, VERSION);
+        doc.appendChild(rootElement);
+
+        Element modules = doc.createElement(MODULES_ELEMENT);
+        rootElement.appendChild(modules);
+
         for (AVModule module : graph.getModules()) {
-            lines.add(module.getFullName());
+            Element element = doc.createElement(MODULE_ELEMENT);
+            element.setAttribute(FULLNAME_ATTRIBUTE, module.getFullName());
+            modules.appendChild(element);
         }
 
-        Collections.sort(lines);
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 
-        try {
-            IOUtils.writeLines(lines, "\n", os, "UTF-8");
-        } finally {
-            os.close();
+        DOMSource source = new DOMSource(doc);
+
+        StreamResult result = new StreamResult(os);
+
+        transformer.transform(source, result);
+        os.flush();
+    }
+
+    public static CharSequence empty() throws Exception {
+        AVGraphFileWriter writer = new AVGraphFileWriter();
+
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+            writer.write(new AVGraph() {
+                @Override
+                public Set<AVModule> getModules() {
+                    return Collections.emptySet();
+                }
+            }, os);
+
+            return IOUtils.toString(os.toByteArray(), "UTF-8");
         }
     }
 }

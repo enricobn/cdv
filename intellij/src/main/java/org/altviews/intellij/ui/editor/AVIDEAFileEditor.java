@@ -26,6 +26,7 @@ import javax.swing.*;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -62,9 +63,9 @@ public class AVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
         ApplicationManager.getApplication().runWriteAction(new Runnable() {
             @Override
             public void run() {
-                try {
-                    writer.write(panel.getGraph(), virtualFile.getOutputStream(AVIDEAFileEditor.this));
-                } catch (IOException e) {
+                try(OutputStream os = virtualFile.getOutputStream(AVIDEAFileEditor.this)) {
+                    writer.write(panel.getGraph(), os);
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             }
@@ -72,7 +73,7 @@ public class AVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
     }
 
     private void loadFile() {
-        // it's run when index are ready
+        // it's run when indexes are ready
         DumbService.getInstance(project).runWhenSmart(new Runnable() {
             @Override
             public void run() {
@@ -83,7 +84,7 @@ public class AVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
                     try (final InputStream inputStream = virtualFile.getInputStream()) {
                         final AVGraph graph = reader.read(inputStream);
                         panel.addModules(graph.getModules());
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         // TODO something better in Intellij?
                         throw new RuntimeException(e);
                     }

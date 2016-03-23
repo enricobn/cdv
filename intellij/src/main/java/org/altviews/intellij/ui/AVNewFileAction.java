@@ -8,6 +8,7 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
+import org.altviews.core.AVGraphFileWriter;
 import org.altviews.intellij.ui.editor.AVIDEAFileType;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,7 +36,8 @@ public class AVNewFileAction extends CreateElementActionBase {
     @Override
     protected PsiElement[] create(String s, PsiDirectory psiDirectory) throws Exception {
         final PsiFile file = PsiFileFactory.getInstance(psiDirectory.getProject())
-                .createFileFromText(s + "." + AVIDEAFileType.DEFAULT_EXTENSION, AVIDEAFileType.INSTANCE, "");
+                .createFileFromText(s + "." + AVIDEAFileType.DEFAULT_EXTENSION, AVIDEAFileType.INSTANCE,
+                        AVGraphFileWriter.empty());
         return new PsiElement[]{psiDirectory.add(file)};
     }
 

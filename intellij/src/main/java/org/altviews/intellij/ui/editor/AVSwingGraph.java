@@ -386,7 +386,7 @@ public class AVSwingGraph implements AVGraph {
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-            // root elements
+
             Document doc = docBuilder.newDocument();
 
             Element rootElement = doc.createElement("svg");
@@ -398,11 +398,12 @@ public class AVSwingGraph implements AVGraph {
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            DOMSource source = new DOMSource(doc);
-            StreamResult result = new StreamResult(file);
+            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 
-            // Output to console for testing
-//            StreamResult result = new StreamResult(System.out);
+            DOMSource source = new DOMSource(doc);
+
+            StreamResult result = new StreamResult(file);
 
             transformer.transform(source, result);
         } catch (Exception e1) {
