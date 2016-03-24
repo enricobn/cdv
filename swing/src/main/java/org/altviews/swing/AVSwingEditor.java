@@ -1,8 +1,8 @@
-package org.altviews.intellij.ui.editor;
+package org.altviews.swing;
 
 import org.altviews.core.*;
-import org.altviews.ui.AVModuleChooser;
 import org.altviews.ui.AVFileSaveChooser;
+import org.altviews.ui.AVModuleChooser;
 
 import javax.swing.*;
 import java.awt.*;
@@ -127,7 +127,7 @@ public class AVSwingEditor extends JPanel {
         component.addModules(modules);
     }
 
-    public void addListener(AVFileEditorComponentListener listener) {
+    public void addListener(AVComponentListener listener) {
         component.addListener(listener);
     }
 

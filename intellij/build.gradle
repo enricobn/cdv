@@ -15,7 +15,7 @@ apply plugin: 'org.jetbrains.intellij'
 
 dependencies {
     compile project(':core')
-    compile 'org.tinyjee.jgraphx:jgraphx:3.4.1.3'
+    compile project(':swing')
     testCompile project(':core').sourceSets.test.output
 }
 

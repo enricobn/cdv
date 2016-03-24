@@ -30,8 +30,7 @@ import org.altviews.intellij.core.AVJavIdeaModuleTypeProvider;
 import org.altviews.intellij.core.AVJavaIDEADependenciesFinder;
 import org.altviews.intellij.core.AVJavaIDEAModuleNavigator;
 import org.altviews.intellij.core.AVJavaIDEANamespaceNavigator;
-import org.altviews.intellij.ui.editor.AVSwingGraph;
-import org.altviews.intellij.ui.editor.AVSwingTabContainer;
+import org.altviews.swing.AVSwingTabContainer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;

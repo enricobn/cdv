@@ -1,4 +1,4 @@
-package org.altviews.intellij.ui.editor;
+package org.altviews.swing;
 
 import org.altviews.core.*;
 import org.altviews.ui.AVModuleChooser;
@@ -29,8 +29,7 @@ public class AVSwingTabContainer extends JTabbedPane {
         this.typeProvider = typeProvider;
         this.moduleChooser = moduleChooser;
         this.nsNavigator = nsNavigator;
-        swingGraph = new AVSwingGraph(navigator, finder, typeProvider, moduleChooser, horizontal, editable,
-                AVSwingGraph.AVSwingGraphType.Modules);
+        swingGraph = new AVSwingGraph(navigator, finder, typeProvider, moduleChooser, horizontal, editable);
         nsSwingGraph = new AVSwingNamespacesGraph(nsNavigator, finder, horizontal);
         addTab("Modules", swingGraph.getComponent());
         addTab("Namespaces", nsSwingGraph.getComponent());
@@ -76,7 +75,7 @@ public class AVSwingTabContainer extends JTabbedPane {
         }
     }
 
-    public void addListener(AVFileEditorComponentListener listener) {
+    public void addListener(AVComponentListener listener) {
         swingGraph.addListener(listener);
     }
 

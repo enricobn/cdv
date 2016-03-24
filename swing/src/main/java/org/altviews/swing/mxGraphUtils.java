@@ -1,4 +1,4 @@
-package org.altviews.intellij.ui;
+package org.altviews.swing;
 
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.util.mxPoint;

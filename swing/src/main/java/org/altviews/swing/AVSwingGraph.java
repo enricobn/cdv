@@ -1,4 +1,4 @@
-package org.altviews.intellij.ui.editor;
+package org.altviews.swing;
 
 import com.mxgraph.canvas.mxSvgCanvas;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
@@ -9,7 +9,6 @@ import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxStylesheet;
 import org.altviews.core.*;
-import org.altviews.intellij.ui.mxGraphUtils;
 import org.altviews.ui.AVModuleChooser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -39,14 +38,10 @@ import java.util.List;
  * Created by enrico on 3/8/16.
  */
 public class AVSwingGraph implements AVGraph {
-    public enum AVSwingGraphType {
-        Modules,
-        Namespaces
-    }
     private static final String INTERFACE_STYLE = "INTERFACE";
     private static final String CLASS_STYLE = "CLASS";
     private final Set<AVModule> modules = new HashSet<>();
-    private final Collection<AVFileEditorComponentListener> listeners = new ArrayList<>();
+    private final Collection<AVComponentListener> listeners = new ArrayList<>();
     private final AVModuleNavigator navigator;
     private final AVDependenciesFinder finder;
     private final AVModuleTypeProvider typeProvider;
@@ -55,17 +50,15 @@ public class AVSwingGraph implements AVGraph {
     private final boolean horizontal;
     private final boolean editable;
     private final mxGraphComponent graphComponent;
-    private AVSwingGraphType type;
 
     public AVSwingGraph(AVModuleNavigator navigator, AVDependenciesFinder finder,
-                        AVModuleTypeProvider typeProvider, AVModuleChooser moduleChooser, boolean horizontal, boolean editable, AVSwingGraphType type) {
+                        AVModuleTypeProvider typeProvider, AVModuleChooser moduleChooser, boolean horizontal, boolean editable) {
         this.navigator = navigator;
         this.finder = finder;
         this.typeProvider = typeProvider;
         this.moduleChooser = moduleChooser;
         this.horizontal = horizontal;
-        this.editable = editable || AVSwingGraphType.Namespaces.equals(type);
-        this.type = type;
+        this.editable = editable;
 
         graph = new mxGraph() {
             public boolean isCellSelectable(Object cell)
@@ -184,7 +177,7 @@ public class AVSwingGraph implements AVGraph {
         }
     }
 
-    public void addListener(AVFileEditorComponentListener listener) {
+    public void addListener(AVComponentListener listener) {
         listeners.add(listener);
     }
 
@@ -268,7 +261,7 @@ public class AVSwingGraph implements AVGraph {
                             modules.remove(module);
                             doGraphLayout();
                             graphComponent.repaint();
-                            for (AVFileEditorComponentListener listener : listeners) {
+                            for (AVComponentListener listener : listeners) {
                                 listener.onRemove(module);
                             }
 
@@ -347,7 +340,7 @@ public class AVSwingGraph implements AVGraph {
         graph.setAutoSizeCells(true);
         graphComponent.repaint();
 
-        for (AVFileEditorComponentListener listener : listeners) {
+        for (AVComponentListener listener : listeners) {
             listener.onAdd(module);
         }
     }

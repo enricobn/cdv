@@ -19,12 +19,13 @@ import org.altviews.intellij.core.AVJavaIDEAModuleNavigator;
 import org.altviews.intellij.core.AVJavaIDEANamespaceNavigator;
 import org.altviews.intellij.ui.AVIDEAFileSaveChooser;
 import org.altviews.intellij.ui.AVJavaIDEAModuleChooser;
+import org.altviews.swing.AVComponentListener;
+import org.altviews.swing.AVSwingEditor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.beans.PropertyChangeListener;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -139,7 +140,7 @@ public class AVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
     public void selectNotify() {
         if (loaded.compareAndSet(false, true)) {
             loadFile();
-            panel.addListener(new AVFileEditorComponentListener() {
+            panel.addListener(new AVComponentListener() {
                 @Override
                 public void onAdd(AVModule module) {
                     if (!loading) {

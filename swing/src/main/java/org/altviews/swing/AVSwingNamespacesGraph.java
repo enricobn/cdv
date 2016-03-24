@@ -1,4 +1,4 @@
-package org.altviews.intellij.ui.editor;
+package org.altviews.swing;
 
 import com.mxgraph.canvas.mxSvgCanvas;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
@@ -9,8 +9,7 @@ import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxStylesheet;
 import org.altviews.core.*;
-import org.altviews.intellij.ui.mxGraphUtils;
-import org.altviews.ui.AVModuleChooser;
+import org.altviews.swing.mxGraphUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -25,22 +24,17 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.List;
 
 /**
  * Created by enrico on 3/8/16.
  */
 public class AVSwingNamespacesGraph  {
     private static final String STYLE = "CLASS";
-//    private final Collection<AVFileEditorComponentListener> listeners = new ArrayList<>();
+//    private final Collection<AVComponentListener> listeners = new ArrayList<>();
     private final AVNamespaceNavigator navigator;
     private final AVDependenciesFinder finder;
 //    private final AVModuleTypeProvider typeProvider;
@@ -159,7 +153,7 @@ public class AVSwingNamespacesGraph  {
 //        }
 //    }
 
-//    public void addListener(AVFileEditorComponentListener listener) {
+//    public void addListener(AVComponentListener listener) {
 //        listeners.add(listener);
 //    }
 
@@ -240,7 +234,7 @@ public class AVSwingNamespacesGraph  {
         graph.setAutoSizeCells(true);
         graphComponent.repaint();
 
-//        for (AVFileEditorComponentListener listener : listeners) {
+//        for (AVComponentListener listener : listeners) {
 //            listener.onAdd(module);
 //        }
     }

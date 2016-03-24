@@ -1,11 +1,11 @@
-package org.altviews.intellij.ui.editor;
+package org.altviews.swing;
 
 import org.altviews.core.AVModule;
 
 /**
  * Created by enrico on 3/9/16.
  */
-public interface AVFileEditorComponentListener {
+public interface AVComponentListener {
 
     void onAdd(AVModule module);
 

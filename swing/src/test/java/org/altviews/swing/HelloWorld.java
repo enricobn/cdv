@@ -1,17 +1,17 @@
-/**
+package org.altviews.swing; /**
  * Created by enrico on 3/5/16.
  */
 
-import javax.swing.*;
-
 import org.altviews.core.*;
-import org.altviews.intellij.ui.editor.AVSwingEditor;
-import org.altviews.ui.AVModuleChooser;
 import org.altviews.ui.AVFileSaveChooser;
+import org.altviews.ui.AVModuleChooser;
 
+import javax.swing.*;
 import java.io.File;
 import java.io.Serializable;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 public class HelloWorld extends JFrame
 {
