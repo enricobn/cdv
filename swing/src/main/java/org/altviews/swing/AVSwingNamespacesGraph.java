@@ -270,28 +270,8 @@ public class AVSwingNamespacesGraph  {
     }
 
     public void exportToSVG(File file) {
-        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         try {
-            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-            // root elements
-            Document doc = docBuilder.newDocument();
-
-            Element rootElement = doc.createElement("svg");
-            doc.appendChild(rootElement);
-
-            mxSvgCanvas canvas = new mxSvgCanvas(doc);
-            graph.drawGraph(canvas);
-
-            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            Transformer transformer = transformerFactory.newTransformer();
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            DOMSource source = new DOMSource(doc);
-            StreamResult result = new StreamResult(file);
-
-            // Output to console for testing
-//            StreamResult result = new StreamResult(System.out);
-
-            transformer.transform(source, result);
+            mxGraphUtils.exportToSVG(graph, file);
         } catch (Exception e1) {
             // TODO
             throw new RuntimeException(e1);

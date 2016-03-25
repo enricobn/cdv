@@ -377,29 +377,8 @@ public class AVSwingGraph implements AVGraph {
     }
 
     public void exportToSVG(File file) {
-        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         try {
-            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-
-            Document doc = docBuilder.newDocument();
-
-            Element rootElement = doc.createElement("svg");
-            doc.appendChild(rootElement);
-
-            mxSvgCanvas canvas = new mxSvgCanvas(doc);
-            graph.drawGraph(canvas);
-
-            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            Transformer transformer = transformerFactory.newTransformer();
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-
-            DOMSource source = new DOMSource(doc);
-
-            StreamResult result = new StreamResult(file);
-
-            transformer.transform(source, result);
+            mxGraphUtils.exportToSVG(graph, file);
         } catch (Exception e1) {
             // TODO
             throw new RuntimeException(e1);
