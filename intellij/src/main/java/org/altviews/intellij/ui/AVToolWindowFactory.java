@@ -30,6 +30,7 @@ import org.altviews.intellij.core.AVJavIdeaModuleTypeProvider;
 import org.altviews.intellij.core.AVJavaIDEADependenciesFinder;
 import org.altviews.intellij.core.AVJavaIDEAModuleNavigator;
 import org.altviews.intellij.core.AVJavaIDEANamespaceNavigator;
+import org.altviews.swing.AVSwingContainer;
 import org.altviews.swing.AVSwingTabContainer;
 import org.jetbrains.annotations.NotNull;
 
@@ -44,7 +45,7 @@ public class AVToolWindowFactory implements ToolWindowFactory {
     private static final Logger logger = Logger.getInstance(AVToolWindowFactory.class);
     private TimedQueueThread<VirtualFile> queue;
     private Project project;
-    private AVSwingTabContainer component;
+    private AVSwingContainer component;
 
     public AVToolWindowFactory() {
     }
@@ -54,12 +55,13 @@ public class AVToolWindowFactory implements ToolWindowFactory {
         logger.info("AVToolWindowFactory.createToolWindowContent");
         this.project = project;
 
-        component = new AVSwingTabContainer(
+        component = new AVSwingContainer(
                 new AVJavaIDEAModuleNavigator(project),
                 new AVJavaIDEADependenciesFinder(project),
                 new AVJavIdeaModuleTypeProvider(project),
                 new AVJavaIDEAModuleChooser(project),
                 new AVJavaIDEANamespaceNavigator(project),
+                new AVIDEAFileSaveChooser(project),
                 true,
                 false);
 

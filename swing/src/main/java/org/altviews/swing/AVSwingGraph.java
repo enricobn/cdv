@@ -52,7 +52,8 @@ public class AVSwingGraph implements AVGraph {
     private final mxGraphComponent graphComponent;
 
     public AVSwingGraph(AVModuleNavigator navigator, AVDependenciesFinder finder,
-                        AVModuleTypeProvider typeProvider, AVModuleChooser moduleChooser, boolean horizontal, boolean editable) {
+                        AVModuleTypeProvider typeProvider, AVModuleChooser moduleChooser, boolean horizontal,
+                        boolean editable) {
         this.navigator = navigator;
         this.finder = finder;
         this.typeProvider = typeProvider;
@@ -405,7 +406,7 @@ public class AVSwingGraph implements AVGraph {
         }
     }
 
-    public void exportToPng(File file) {
+    public void exportToPNG(File file) {
         BufferedImage img = mxCellRenderer.createBufferedImage(graph, null, 1, Color.WHITE, false, null);
         try {
             ImageIO.write(img, "png", new FileImageOutputStream(file));

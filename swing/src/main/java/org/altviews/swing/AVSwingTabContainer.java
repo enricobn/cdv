@@ -53,11 +53,11 @@ public class AVSwingTabContainer extends JTabbedPane {
         }
     }
 
-    public void exportToPng(File file) {
+    public void exportToPNG(File file) {
         if (getSelectedIndex() == 0) {
-            swingGraph.exportToPng(file);
+            swingGraph.exportToPNG(file);
         } else {
-            nsSwingGraph.exportToPng(file);
+            nsSwingGraph.exportToPNG(file);
         }
     }
 

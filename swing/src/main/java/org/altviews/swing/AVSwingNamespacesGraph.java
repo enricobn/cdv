@@ -298,7 +298,7 @@ public class AVSwingNamespacesGraph  {
         }
     }
 
-    public void exportToPng(File file) {
+    public void exportToPNG(File file) {
         BufferedImage img = mxCellRenderer.createBufferedImage(graph, null, 1, Color.WHITE, false, null);
         try {
             ImageIO.write(img, "png", new FileImageOutputStream(file));
