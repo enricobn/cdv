@@ -3,6 +3,7 @@
  */
 package org.altviews.intellij.ui;
 
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
@@ -15,9 +16,12 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
+import com.intellij.openapi.project.ProjectManagerListener;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
+import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.openapi.wm.ex.ToolWindowManagerEx;
 import com.intellij.openapi.wm.ex.ToolWindowManagerListener;
 import com.intellij.psi.PsiClass;
@@ -31,7 +35,6 @@ import org.altviews.intellij.core.AVJavaIDEADependenciesFinder;
 import org.altviews.intellij.core.AVJavaIDEAModuleNavigator;
 import org.altviews.intellij.core.AVJavaIDEANamespaceNavigator;
 import org.altviews.swing.AVSwingContainer;
-import org.altviews.swing.AVSwingTabContainer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -43,9 +46,6 @@ import java.util.Set;
  */
 public class AVToolWindowFactory implements ToolWindowFactory {
     private static final Logger logger = Logger.getInstance(AVToolWindowFactory.class);
-    private TimedQueueThread<VirtualFile> queue;
-    private Project project;
-    private AVSwingContainer component;
 
     public AVToolWindowFactory() {
     }
@@ -53,9 +53,8 @@ public class AVToolWindowFactory implements ToolWindowFactory {
     @Override
     public void createToolWindowContent(@NotNull final Project project, @NotNull final ToolWindow toolWindow) {
         logger.info("AVToolWindowFactory.createToolWindowContent");
-        this.project = project;
 
-        component = new AVSwingContainer(
+        final AVSwingContainer component = new AVSwingContainer(
                 new AVJavaIDEAModuleNavigator(project),
                 new AVJavaIDEADependenciesFinder(project),
                 new AVJavIdeaModuleTypeProvider(project),
@@ -69,13 +68,13 @@ public class AVToolWindowFactory implements ToolWindowFactory {
         final Content content = contentFactory.createContent(component, "", false);
         toolWindow.getContentManager().addContent(content);
 
-        queue = new TimedQueueThread<>(new TimedQueueThread.ElementRunnable<VirtualFile>() {
+        final TimedQueueThread<VirtualFile> queue = new TimedQueueThread<>(new TimedQueueThread.ElementRunnable<VirtualFile>() {
             @Override
             public void run(final VirtualFile element) {
                 ApplicationManager.getApplication().runReadAction(new Runnable() {
                     @Override
                     public void run() {
-                        refresh(element);
+                        refresh(project, component, element);
                     }
                 });
             }
@@ -88,27 +87,12 @@ public class AVToolWindowFactory implements ToolWindowFactory {
             public void run() {
                 logger.info("AVToolWindowFactory.onDone");
                 if (toolWindow.isVisible()) {
-                    refreshSelectedFile();
+                    refreshSelectedFile(project, component, queue);
                 }
             }
         }, true);
 
-        ToolWindowManagerEx manager = ToolWindowManagerEx.getInstanceEx(project);
-        manager.addToolWindowManagerListener(new ToolWindowManagerListener() {
-            @Override
-            public void toolWindowRegistered(@NotNull String s) {
-
-            }
-
-            @Override
-            public void stateChanged() {
-                if (toolWindow.isAvailable() && toolWindow.isVisible()) {
-                    refreshSelectedFile();
-                }
-            }
-        });
-
-        EditorFactory.getInstance().getEventMulticaster().addDocumentListener(new DocumentListener() {
+        final DocumentListener documentListener = new DocumentListener() {
             @Override
             public void beforeDocumentChange(DocumentEvent documentEvent) {
 
@@ -116,7 +100,7 @@ public class AVToolWindowFactory implements ToolWindowFactory {
 
             @Override
             public void documentChanged(DocumentEvent documentEvent) {
-                if (!toolWindow.isVisible()) {
+                if (!isVisible(project, toolWindow)) {
                     return;
                 }
                 final VirtualFile file = FileDocumentManager.getInstance().getFile(
@@ -128,13 +112,16 @@ public class AVToolWindowFactory implements ToolWindowFactory {
                     }
                 });
             }
-        });
+        };
 
+        EditorFactory.getInstance().getEventMulticaster().addDocumentListener(documentListener);
 
-        project.getMessageBus().connect().subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, new FileEditorManagerListener() {
+        final FileEditorManagerListener fileEditorManagerListener = new FileEditorManagerListener() {
             @Override
             public void fileOpened(@NotNull FileEditorManager fileEditorManager, @NotNull VirtualFile virtualFile) {
-                queue.add(virtualFile);
+                if (isVisible(project, toolWindow)) {
+                    queue.add(virtualFile);
+                }
             }
 
             @Override
@@ -144,23 +131,91 @@ public class AVToolWindowFactory implements ToolWindowFactory {
 
             @Override
             public void selectionChanged(@NotNull FileEditorManagerEvent fileEditorManagerEvent) {
-                queue.add(fileEditorManagerEvent.getNewFile());
+                if (!isVisible(project, toolWindow)) {
+                    return;
+                }
+                final VirtualFile file = fileEditorManagerEvent.getNewFile();
+                if (file == null) {
+                    component.clear();
+                } else {
+                    queue.add(file);
+                }
+            }
+        };
+
+        project.getMessageBus().connect().subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, fileEditorManagerListener);
+
+        final ToolWindowManagerListener toolWindowManagerListener = new ToolWindowManagerListener() {
+            @Override
+            public void toolWindowRegistered(@NotNull String s) {
+
+            }
+
+            @Override
+            public void stateChanged() {
+                if (isVisible(project, toolWindow)) {
+                    refreshSelectedFile(project, component, queue);
+                }
+            }
+        };
+
+        final ToolWindowManagerEx manager = ToolWindowManagerEx.getInstanceEx(project);
+
+        manager.addToolWindowManagerListener(toolWindowManagerListener);
+
+        ProjectManager.getInstance().addProjectManagerListener(new ProjectManagerListener() {
+            @Override
+            public void projectOpened(Project project) {
+
+            }
+
+            @Override
+            public boolean canCloseProject(Project project) {
+                return true;
+            }
+
+            @Override
+            public void projectClosed(Project pr) {
+                if (pr.equals(project)) {
+                    logger.info("AVToolWindowFactory project closed");
+                    manager.removeToolWindowManagerListener(toolWindowManagerListener);
+                    EditorFactory.getInstance().getEventMulticaster().removeDocumentListener(documentListener);
+                    queue.stop();
+                    ProjectManager.getInstance().removeProjectManagerListener(this);
+                }
+            }
+
+            @Override
+            public void projectClosing(Project project) {
+
             }
         });
     }
 
-    private void refreshSelectedFile() {
+    private boolean isVisible(@NotNull final Project project, @NotNull final ToolWindow toolWindow) {
+        // We have to check if our tool window is still registered, as
+        // otherwise it will raise an exception when project is closed.
+        if (project.isDisposed() || ToolWindowManagerEx.getInstanceEx(project).getToolWindow("Alt view") == null) {
+            return false;
+        }
+        return toolWindow.isAvailable() && toolWindow.isVisible();
+    }
+
+    private void refreshSelectedFile(@NotNull final Project project, @NotNull AVSwingContainer component,
+                                     @NotNull final TimedQueueThread<VirtualFile> queue) {
         final Editor editor = FileEditorManager.getInstance(project).getSelectedTextEditor();
         if (editor != null) {
             final Document document = editor.getDocument();
             final VirtualFile file = FileDocumentManager.getInstance().getFile(document);
-            if (file != null) {
+            if (file == null) {
+                component.clear();
+            } else {
                 queue.add(file);
             }
         }
     }
 
-    private void refresh(VirtualFile file) {
+    private void refresh(@NotNull final Project project, @NotNull AVSwingContainer component, VirtualFile file) {
 //        logger.info("AVToolWindowFactory.refresh " + file);
         final PsiClass mainClass = AVJavaIDEAUtils.getMainClass(project, file);
 

@@ -51,4 +51,8 @@ public class TimedQueueThread<T> {
     public interface ElementRunnable<T> {
         void run(T element);
     }
+
+    public void stop() {
+        running = false;
+    }
 }
