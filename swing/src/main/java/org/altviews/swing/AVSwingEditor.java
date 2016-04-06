@@ -25,12 +25,12 @@ public class AVSwingEditor extends AVSwingContainer {
                 new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        addFile();
+                        addModule();
                     }
                 }, 0);
     }
 
-    private void addFile() {
+    private void addModule() {
         final AVModule module = moduleChooser.show("Add module");
         if (module != null) {
             addModule(module);
