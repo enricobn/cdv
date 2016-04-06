@@ -40,6 +40,7 @@ import java.util.List;
 public class AVSwingGraph implements AVGraph {
     private static final String INTERFACE_STYLE = "INTERFACE";
     private static final String CLASS_STYLE = "CLASS";
+    private static final String SELECTED_EDGE_STYLE = "SELECTED_EDGE";
     private final Set<AVModule> modules = new HashSet<>();
     private final Collection<AVComponentListener> listeners = new ArrayList<>();
     private final AVModuleNavigator navigator;
@@ -50,6 +51,7 @@ public class AVSwingGraph implements AVGraph {
     private final boolean horizontal;
     private final boolean editable;
     private final mxGraphComponent graphComponent;
+    private Object selectedEdge;
 
     public AVSwingGraph(AVModuleNavigator navigator, AVDependenciesFinder finder,
                         AVModuleTypeProvider typeProvider, AVModuleChooser moduleChooser, boolean horizontal,
@@ -112,6 +114,13 @@ public class AVSwingGraph implements AVGraph {
             styleSheet.putCellStyle(CLASS_STYLE, style);
         }
 
+        {
+            mxStylesheet styleSheet = graph.getStylesheet();
+            Hashtable<String, Object> style = new Hashtable<>();
+            style.put(mxConstants.STYLE_STROKECOLOR, "#00FF00");
+            styleSheet.putCellStyle(SELECTED_EDGE_STYLE, style);
+        }
+
         graphComponent = new mxGraphComponent(graph);
 //        graphComponent.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         graphComponent.setConnectable(false);
@@ -141,15 +150,24 @@ public class AVSwingGraph implements AVGraph {
     }
 
     private void handleMouseClicked(MouseEvent e, mxGraphComponent graphComponent) {
-        if (e.getClickCount() != 2) {
-            return;
-        }
         Object cell = graphComponent.getCellAt(e.getX(), e.getY());
 
         if (cell != null) {
             if (graph.getModel().isVertex(cell)) {
+                if (e.getClickCount() != 2) {
+                    return;
+                }
                 AVModule module = (AVModule) graph.getModel().getValue(cell);
                 navigator.navigateTo(module);
+            } else if (graph.getModel().isEdge(cell)) {
+                if (selectedEdge != null) {
+                    graph.setCellStyle(null, new Object[]{selectedEdge});
+                }
+
+                if (selectedEdge != cell) {
+                    graph.setCellStyle(SELECTED_EDGE_STYLE, new Object[]{cell});
+                    selectedEdge = cell;
+                }
             }
         }
     }
