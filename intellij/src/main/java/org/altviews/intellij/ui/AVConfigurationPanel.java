@@ -18,12 +18,9 @@ import java.util.ArrayList;
  */
 public class AVConfigurationPanel extends JPanel implements Configurable, DocumentListener {
     private final Project project;
-    private final JLabel includesLabel = new JLabel("Include:");
     private final JTextArea includes = new JTextArea();
-    private final JLabel excludesLabel = new JLabel("Exclude:");
     private final JTextArea excludes = new JTextArea();
     private boolean modified;
-
 
     public static void main(String[] args) {
         JFrame frm = new JFrame();
@@ -52,6 +49,7 @@ public class AVConfigurationPanel extends JPanel implements Configurable, Docume
             gbc.insets.left = 10;
             gbc.insets.top = 10;
             gbc.insets.bottom = 5;
+            JLabel includesLabel = new JLabel("Include:");
             add(includesLabel, gbc);
 
             gbc = new GridBagConstraints();
@@ -72,6 +70,7 @@ public class AVConfigurationPanel extends JPanel implements Configurable, Docume
             gbc.insets.left = 10;
             gbc.insets.top = 10;
             gbc.insets.bottom = 5;
+            JLabel excludesLabel = new JLabel("Exclude:");
             add(excludesLabel, gbc);
 
             gbc = new GridBagConstraints();
