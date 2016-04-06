@@ -221,12 +221,12 @@ public class AVSwingGraph implements AVGraph {
                 }
 
                 if (!dependencies.isEmpty()) {
-                    final List<AVModule> modules = new ArrayList<AVModule>();
+                    final List<AVModule> depModules = new ArrayList<AVModule>();
                     for (final AVModuleDependency dep : dependencies) {
-                        modules.add(dep.getModule());
+                        depModules.add(dep.getModule());
                     }
 
-                    Collections.sort(modules, new Comparator<AVModule>() {
+                    Collections.sort(depModules, new Comparator<AVModule>() {
                         @Override
                         public int compare(AVModule o1, AVModule o2) {
                             return o1.getSimpleName().compareTo(o2.getSimpleName());
@@ -237,7 +237,7 @@ public class AVSwingGraph implements AVGraph {
                     item.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            final AVModule module = moduleChooser.show("Add module", modules);
+                            final AVModule module = moduleChooser.show("Add module", depModules);
                             if (module != null) {
                                 addModule(module);
                             }
@@ -249,25 +249,23 @@ public class AVSwingGraph implements AVGraph {
                     item.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            addModules(modules);
+                            addModules(depModules);
                         }
                     });
                     popup.addSeparator();
-                }
 
-                for (final AVModuleDependency dep : dependencies) {
-                    popup.add(item = new JMenuItem("Add " + dep.toString()));
-                    item.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            addModule(dep.getModule(), cell, finder);
-                        }
-                    });
-                }
-
-                if (!dependencies.isEmpty()) {
+                    for (final AVModule dep : depModules) {
+                        popup.add(item = new JMenuItem("Add " + dep.toString()));
+                        item.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                addModule(dep, cell, finder);
+                            }
+                        });
+                    }
                     popup.addSeparator();
                 }
+
                 popup.add(item = new JMenuItem("Delete"));
                 item.addActionListener(new ActionListener() {
                     @Override
