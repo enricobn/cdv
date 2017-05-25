@@ -1,4 +1,4 @@
-rootProject.name = 'altviews'
+rootProject.name = 'cdv'
 include 'core', 'intellij'
 include 'swing'
 

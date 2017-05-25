@@ -3,7 +3,7 @@ version = '1.0.0-SNAPSHOT'
 subprojects {
     apply plugin: 'java'
     
-    group = 'org.altviews'
+    group = 'org.cdv'
     
     sourceCompatibility = '1.7'
 

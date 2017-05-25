@@ -1,17 +1,15 @@
-<idea-plugin version="2">
-  <id>org.altviews.intellij</id>
-  <name>Alt views</name>
+<idea-plugin>
+  <id>org.cdv.intellij</id>
+  <name>CDV</name>
   <version>1.0.0</version>
-  <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+  <!--vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor-->
 
   <description><![CDATA[
-      Enter short description for your plugin here.<br>
-      <em>most HTML tags may be used</em>
+      Class dependency viewer (CDV).<br>
+      A plugin to show dependencies between classes or between packages.
     ]]></description>
 
   <change-notes><![CDATA[
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>
     ]]>
   </change-notes>
 
@@ -25,13 +23,13 @@
   -->
 
   <extensions defaultExtensionNs="com.intellij">
-    <toolWindow id="Alt view" anchor="bottom"
-                factoryClass="org.altviews.intellij.ui.AVToolWindowFactory"/>
-    <fileEditorProvider implementation="org.altviews.intellij.ui.editor.AVIDEAEditorProvider"/>
-    <fileTypeFactory implementation="org.altviews.intellij.ui.editor.AVIDEAEditorProvider"/>
-    <fileTypeFactory implementation="org.altviews.intellij.ui.editor.AVIDEAFileTypeFactory"/>
-    <projectConfigurable instance="org.altviews.intellij.ui.AVConfigurationPanel"/>
-    <projectService serviceImplementation="org.altviews.intellij.core.AVConfiguration"/>
+    <toolWindow id="CDV" anchor="bottom"
+                factoryClass="org.cdv.intellij.ui.CDVToolWindowFactory"/>
+    <fileEditorProvider implementation="org.cdv.intellij.ui.editor.CDVIDEAEditorProvider"/>
+    <fileTypeFactory implementation="org.cdv.intellij.ui.editor.CDVIDEAEditorProvider"/>
+    <fileTypeFactory implementation="org.cdv.intellij.ui.editor.CDVIDEAFileTypeFactory"/>
+    <projectConfigurable instance="org.cdv.intellij.ui.CDVConfigurationPanel"/>
+    <projectService serviceImplementation="org.cdv.intellij.core.CDVConfiguration"/>
   </extensions>
 
   <application-components>
@@ -43,7 +41,7 @@
   </project-components>
 
   <actions>
-    <action id="newAVFile" class="org.altviews.intellij.ui.AVNewFileAction" text="AV">
+    <action id="newCDVFile" class="org.cdv.intellij.ui.CDVNewFileAction" text="CDV">
       <add-to-group group-id="NewGroup" anchor="first"/>
     </action>
   </actions>
