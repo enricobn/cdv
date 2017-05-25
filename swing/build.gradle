@@ -1,4 +1,4 @@
-description = 'AltViews swing components'
+description = 'CDV swing components'
 
 repositories {
     mavenCentral()

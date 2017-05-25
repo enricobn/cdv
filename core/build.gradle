@@ -1,4 +1,4 @@
-description = 'AltViews core'
+description = 'CDV core'
 
 dependencies {
     compile 'commons-io:commons-io:2.4'

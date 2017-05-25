@@ -1,4 +1,4 @@
-description = 'AltViews Intellij plugin'
+description = 'CDV Intellij plugin'
 
 buildscript {
     repositories {
@@ -22,7 +22,7 @@ dependencies {
 intellij {
     version 'IC-141.177.4'
     //plugins 'coverage'
-    pluginName 'AltViews'
+    pluginName 'CDV'
 
 /*    publish {
         username 'zolotov'

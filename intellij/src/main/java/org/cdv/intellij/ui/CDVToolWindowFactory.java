@@ -50,7 +50,7 @@ public class CDVToolWindowFactory implements ToolWindowFactory {
 
     @Override
     public void createToolWindowContent(@NotNull final Project project, @NotNull final ToolWindow toolWindow) {
-        logger.info("AVToolWindowFactory.createToolWindowContent");
+        logger.info("CDVToolWindowFactory.createToolWindowContent");
 
         final CDVSwingContainer component = new CDVSwingContainer(
                 new CDVJavaIDEAModuleNavigator(project),
@@ -83,7 +83,7 @@ public class CDVToolWindowFactory implements ToolWindowFactory {
         toolWindow.getActivation().processOnDone(new Runnable() {
             @Override
             public void run() {
-                logger.info("AVToolWindowFactory.onDone");
+                logger.info("CDVToolWindowFactory.onDone");
                 if (toolWindow.isVisible()) {
                     refreshSelectedFile(project, component, queue);
                 }
@@ -117,7 +117,9 @@ public class CDVToolWindowFactory implements ToolWindowFactory {
         final FileEditorManagerListener fileEditorManagerListener = new FileEditorManagerListener() {
             @Override
             public void fileOpened(@NotNull FileEditorManager fileEditorManager, @NotNull VirtualFile virtualFile) {
+                logger.info("CDVToolWindowFactory.fileOpened");
                 if (isVisible(project, toolWindow)) {
+                    logger.info("CDVToolWindowFactory.fileOpened file=" + virtualFile);
                     queue.add(virtualFile);
                 }
             }
@@ -129,10 +131,12 @@ public class CDVToolWindowFactory implements ToolWindowFactory {
 
             @Override
             public void selectionChanged(@NotNull FileEditorManagerEvent fileEditorManagerEvent) {
+                logger.info("CDVToolWindowFactory.selectionChanged");
                 if (!isVisible(project, toolWindow)) {
                     return;
                 }
                 final VirtualFile file = fileEditorManagerEvent.getNewFile();
+                logger.info("CDVToolWindowFactory.selectionChanged file=" + file);
                 if (file == null) {
                     component.clear();
                 } else {
@@ -175,7 +179,7 @@ public class CDVToolWindowFactory implements ToolWindowFactory {
             @Override
             public void projectClosed(Project pr) {
                 if (pr.equals(project)) {
-                    logger.info("AVToolWindowFactory project closed");
+                    logger.info("CDVToolWindowFactory project closed");
                     manager.removeToolWindowManagerListener(toolWindowManagerListener);
                     EditorFactory.getInstance().getEventMulticaster().removeDocumentListener(documentListener);
                     queue.stop();
@@ -193,7 +197,7 @@ public class CDVToolWindowFactory implements ToolWindowFactory {
     private boolean isVisible(@NotNull final Project project, @NotNull final ToolWindow toolWindow) {
         // We have to check if our tool window is still registered, as
         // otherwise it will raise an exception when project is closed.
-        if (project.isDisposed() || ToolWindowManagerEx.getInstanceEx(project).getToolWindow("Alt view") == null) {
+        if (project.isDisposed() || ToolWindowManagerEx.getInstanceEx(project).getToolWindow("CDV") == null) {
             return false;
         }
         return toolWindow.isAvailable() && toolWindow.isVisible();
