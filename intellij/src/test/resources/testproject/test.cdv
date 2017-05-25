@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<graph version="1.0.0">
+  <modules>
+    <module fullName="core.TypeInterface"/>
+    <module fullName="core.SimpleClass"/>
+    <module fullName="elab.Elaboration"/>
+    <module fullName="core.SimpleAnnotation"/>
+    <module fullName="core.TypedClass"/>
+    <module fullName="test.ClassTest"/>
+  </modules>
+</graph>
