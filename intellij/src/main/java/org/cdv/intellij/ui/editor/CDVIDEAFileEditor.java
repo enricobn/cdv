@@ -3,12 +3,18 @@ package org.cdv.intellij.ui.editor;
 import com.intellij.codeHighlighting.BackgroundEditorHighlighter;
 import com.intellij.ide.structureView.StructureViewBuilder;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.command.CommandProcessor;
+import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.components.SettingsSavingComponent;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.event.DocumentAdapter;
+import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.fileEditor.*;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.*;
+import org.apache.commons.io.IOUtils;
 import org.cdv.core.CDVGraph;
 import org.cdv.core.CDVGraphFileReader;
 import org.cdv.core.CDVGraphFileWriter;
@@ -26,8 +32,8 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.beans.PropertyChangeListener;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
+import java.nio.charset.Charset;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -39,7 +45,12 @@ public class CDVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
     private final CDVSwingEditor panel;
     private final CDVGraphFileWriter writer;
     private final AtomicBoolean loaded = new AtomicBoolean(false);
-    private boolean loading;
+    private volatile boolean loading;
+    private volatile boolean saving;
+    private volatile boolean avoidWriteOnDisk;
+    private MyVirtualFileAdapter virtualFileListener;
+    private Document document;
+    private MyDocumentAdapter documentListener;
 
     public CDVIDEAFileEditor(final Project project, final VirtualFile virtualFile) {
         this.project = project;
@@ -55,22 +66,54 @@ public class CDVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
                 new CDVIDEAFileSaveChooser(project),
                 new CDVJavaIDEANamespaceNavigator(project),
                 false);
+        loadDocument(virtualFile);
+    }
+
+    private void loadDocument(VirtualFile virtualFile) {
+        document = FileDocumentManager.getInstance().getDocument(virtualFile);
+        if (document == null) {
+            throw new IllegalStateException("Cannot find document for " + virtualFile);
+        }
+
+        documentListener = new MyDocumentAdapter();
+        document.addDocumentListener(documentListener);
+
+        virtualFileListener = new MyVirtualFileAdapter();
+        VirtualFileManager.getInstance().addVirtualFileListener(virtualFileListener);
+
     }
 
     public void save() {
 //        HintManager.getInstance().showHint(panel, new RelativePoint(panel, new Point(10,10)),
 //                HintManager.HIDE_BY_ESCAPE, 10);
 
-        ApplicationManager.getApplication().runWriteAction(new Runnable() {
-            @Override
-            public void run() {
-                try(OutputStream os = virtualFile.getOutputStream(CDVIDEAFileEditor.this)) {
-                    writer.write(panel.getGraph(), os);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
+    }
+
+    private void saveDocument() {
+            WriteCommandAction.runWriteCommandAction(project, new Runnable() {
+                @Override
+                public void run() {
+                    CommandProcessor.getInstance().executeCommand(project, new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                                writer.write(panel.getGraph(), os);
+                                os.close();
+                                document.setText(os.toString("UTF-8"));
+//                                saving = true;
+//                                try {
+//                                    FileDocumentManager.getInstance().saveDocument(document);
+//                                } finally {
+//                                    saving = false;
+//                                }
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    }, "save", CDVIDEAFileEditor.this);
                 }
-            }
-        });
+            });
     }
 
     private void loadFile() {
@@ -82,7 +125,8 @@ public class CDVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
                     loading = true;
                     panel.clear();
                     CDVGraphFileReader reader = new CDVGraphFileReader();
-                    try (final InputStream inputStream = virtualFile.getInputStream()) {
+
+                    try (InputStream inputStream = new ByteArrayInputStream(document.getText().getBytes(Charset.forName("UTF-8")))) {
                         final CDVGraph graph = reader.read(inputStream);
                         panel.addModules(graph.getModules());
                     } catch (Exception e) {
@@ -111,7 +155,7 @@ public class CDVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
     @NotNull
     @Override
     public String getName() {
-        return "Alt view";
+        return "Class dependency view";
     }
 
     @NotNull
@@ -144,34 +188,15 @@ public class CDVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
                 @Override
                 public void onAdd(CDVModule module) {
                     if (!loading) {
-                        save();
+                        saveDocument();
                     }
                 }
 
                 @Override
                 public void onRemove(CDVModule module) {
                     if (!loading) {
-                        save();
+                        saveDocument();
                     }
-                }
-            });
-            VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileAdapter() {
-                @Override
-                public void contentsChanged(@NotNull VirtualFileEvent event) {
-                    if (event.getFile().equals(virtualFile) && event.isFromRefresh() &&
-                            event.getRequestor() != CDVIDEAFileEditor.this) {
-                        loadFile();
-                    }
-                }
-
-                @Override
-                public void fileDeleted(@NotNull VirtualFileEvent event) {
-
-                }
-
-                @Override
-                public void fileMoved(@NotNull VirtualFileMoveEvent event) {
-
                 }
             });
         }
@@ -212,7 +237,13 @@ public class CDVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
 
     @Override
     public void dispose() {
+        if (virtualFileListener != null) {
+            VirtualFileManager.getInstance().removeVirtualFileListener(virtualFileListener);
+        }
 
+        if (document != null) {
+            document.removeDocumentListener(documentListener);
+        }
     }
 
     @Nullable
@@ -234,6 +265,71 @@ public class CDVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
         @Override
         public boolean canBeMergedWith(FileEditorState otherState, FileEditorStateLevel level) {
             return false;
+        }
+    }
+
+    private class MyVirtualFileAdapter extends VirtualFileAdapter {
+        @Override
+        public void contentsChanged(@NotNull VirtualFileEvent event) {
+            if (!saving && event.getFile().equals(virtualFile) &&
+                    (event.getRequestor() == null || !(event.getRequestor() instanceof CDVIDEAFileEditor))) {
+                try (final InputStream inputStream = virtualFile.getInputStream()) {
+                    final String text = IOUtils.toString(inputStream, "UTF-8");
+                    WriteCommandAction.runWriteCommandAction(project, new Runnable() {
+                                @Override
+                                public void run() {
+                            CommandProcessor.getInstance().executeCommand(project, new Runnable() {
+                                @Override
+                                public void run() {
+                                    avoidWriteOnDisk = true;
+                                    try {
+                                        document.setText(text);
+//                                        loadFile();
+                                    } finally {
+                                        avoidWriteOnDisk = false;
+                                    }
+                                }
+                            }, "save", CDVIDEAFileEditor.this);
+                                }
+                        }
+                    );
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+//                loadDocument(virtualFile);
+
+            }
+        }
+
+        @Override
+        public void fileDeleted(@NotNull VirtualFileEvent event) {
+
+        }
+
+        @Override
+        public void fileMoved(@NotNull VirtualFileMoveEvent event) {
+
+        }
+    }
+
+    private class MyDocumentAdapter extends DocumentAdapter {
+        @Override
+        public void documentChanged(DocumentEvent e) {
+            if (!avoidWriteOnDisk) {
+                saving = true;
+                FileDocumentManager.getInstance().saveDocument(document);
+
+                // On undo, the document change can be invoked before the effective changes to Psi classes,
+                // so I must defer loading file.
+                ApplicationManager.getApplication().invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        loadFile();
+                        saving = false;
+                    }
+                });
+            }
         }
     }
 }

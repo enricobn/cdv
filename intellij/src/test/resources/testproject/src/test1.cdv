@@ -3,9 +3,9 @@
   <modules>
     <module fullName="core.TypeInterface"/>
     <module fullName="core.SimpleClass"/>
-    <module fullName="elab.Elaboration"/>
     <module fullName="core.SimpleAnnotation"/>
     <module fullName="core.TypedClass"/>
     <module fullName="test.ClassTest"/>
+    <module fullName="elab.ElaborationTest"/>
   </modules>
 </graph>

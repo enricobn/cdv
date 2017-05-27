@@ -21,6 +21,7 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.List;
 
@@ -163,12 +164,16 @@ public class CDVSwingGraph implements CDVGraph {
     }
 
     public void addModule(final CDVModule module) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                addModule(module, null, finder);
-            }
-        });
+        try {
+            CDVSwingUtilities.invokeAndWait(new Runnable() {
+                @Override
+                public void run() {
+                    addModule(module, null, finder);
+                }
+            });
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void addModules(final Collection<CDVModule> modules) {
@@ -177,12 +182,16 @@ public class CDVSwingGraph implements CDVGraph {
 
     public void addModules(final Collection<CDVModule> modules, final CDVDependenciesFinder finder) {
         for (final CDVModule module : modules) {
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    addModule(module, null, finder);
-                }
-            });
+            try {
+                CDVSwingUtilities.invokeAndWait(new Runnable() {
+                    @Override
+                    public void run() {
+                        addModule(module, null, finder);
+                    }
+                });
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

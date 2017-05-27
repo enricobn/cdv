@@ -16,6 +16,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 /**
@@ -148,20 +149,24 @@ public class CDVSwingNamespacesGraph {
 
 
     public void setGraph(final CDVGraph cdvGraph) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                clear();
-                CDVNamespacesGraph nsGraph = new CDVNamespacesGraph(cdvGraph, finder);
-                for (String ns : nsGraph.getNamespaces()) {
-                    addNamespace(ns, null, nsGraph);
-                }
-                doGraphLayout();
+        try {
+            CDVSwingUtilities.invokeAndWait(new Runnable() {
+                @Override
+                public void run() {
+                    clear();
+                    CDVNamespacesGraph nsGraph = new CDVNamespacesGraph(cdvGraph, finder);
+                    for (String ns : nsGraph.getNamespaces()) {
+                        addNamespace(ns, null, nsGraph);
+                    }
+                    doGraphLayout();
 
-                graph.setAutoSizeCells(true);
-                graphComponent.repaint();
-            }
-        });
+                    graph.setAutoSizeCells(true);
+                    graphComponent.repaint();
+                }
+            });
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void addNamespace(String namespace, Object fromCell, CDVNamespacesGraph nsGraph)  {

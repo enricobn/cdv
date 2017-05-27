@@ -45,6 +45,7 @@ public class CDVJavaIDEADependenciesFinder implements CDVDependenciesFinder {
             }
             element = element.getParent();
         }
+        logger.info("Cannot find classes for " + module);
         return new PsiClass[0];
     }
 

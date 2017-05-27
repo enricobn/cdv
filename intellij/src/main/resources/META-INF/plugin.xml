@@ -30,6 +30,7 @@
     <fileTypeFactory implementation="org.cdv.intellij.ui.editor.CDVIDEAFileTypeFactory"/>
     <projectConfigurable instance="org.cdv.intellij.ui.CDVConfigurationPanel"/>
     <projectService serviceImplementation="org.cdv.intellij.core.CDVConfiguration"/>
+    <refactoring.elementListenerProvider implementation="org.cdv.intellij.core.CDVRefactoringElementListenerProvider"/>
   </extensions>
 
   <application-components>
