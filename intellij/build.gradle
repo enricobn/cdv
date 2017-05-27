@@ -1,15 +1,8 @@
-description = 'CDV Intellij plugin'
-
-buildscript {
-    repositories {
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
-    }
-    dependencies {
-        classpath 'gradle.plugin.org.jetbrains:gradle-intellij-plugin:0.0.43'
-    }
+plugins {
+    id 'org.jetbrains.intellij' version '0.2.11'
 }
+
+description = 'CDV Intellij plugin'
 
 apply plugin: 'org.jetbrains.intellij'
 
@@ -20,13 +13,16 @@ dependencies {
 }
 
 intellij {
-    version 'IC-141.177.4'
+    version '141.2735.5'
     //plugins 'coverage'
     pluginName 'CDV'
 
+    // until build left open
+    updateSinceUntilBuild false
+
 /*    publish {
-        username 'zolotov'
-        password 'password'
+        username 'user'
+        password 'pwd'
         pluginId '5047'
         channel 'nightly'
     }

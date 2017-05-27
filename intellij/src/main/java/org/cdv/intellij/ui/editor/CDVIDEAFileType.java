@@ -3,6 +3,7 @@ package org.cdv.intellij.ui.editor;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFile;
+import org.cdv.core.CDVConstants;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,7 +30,7 @@ public class CDVIDEAFileType implements FileType {
     @NotNull
     @Override
     public String getDescription() {
-        return "Class dependency viewer";
+        return CDVConstants.PLUGIN_NAME;
     }
 
     @NotNull

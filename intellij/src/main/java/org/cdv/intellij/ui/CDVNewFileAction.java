@@ -8,6 +8,7 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
+import org.cdv.core.CDVConstants;
 import org.cdv.core.CDVGraphFileWriter;
 import org.cdv.intellij.ui.editor.CDVIDEAFileType;
 import org.jetbrains.annotations.NotNull;
@@ -19,14 +20,14 @@ public class CDVNewFileAction extends CreateElementActionBase {
     private static final Logger logger = Logger.getInstance(CDVNewFileAction.class);
 
     public CDVNewFileAction() {
-        super("CDV", "Class dependency view", CDVIDEAFileType.INSTANCE.getIcon());
+        super("CDV", CDVConstants.PLUGIN_NAME, CDVIDEAFileType.INSTANCE.getIcon());
     }
 
     @NotNull
     @Override
     protected PsiElement[] invokeDialog(Project project, PsiDirectory psiDirectory) {
         final MyInputValidator validator = new MyInputValidator(project, psiDirectory);
-        Messages.showInputDialog(project, "File name", "Create New Class Dependency View", Messages.getQuestionIcon(), "", validator);
+        Messages.showInputDialog(project, "File name", "Create New " + CDVConstants.PLUGIN_NAME, Messages.getQuestionIcon(), "", validator);
 
         return validator.getCreatedElements();
     }

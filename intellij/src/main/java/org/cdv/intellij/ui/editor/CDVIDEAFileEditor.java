@@ -132,7 +132,7 @@ public class CDVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
     @NotNull
     @Override
     public String getName() {
-        return "Class dependency view";
+        return CDVConstants.PLUGIN_NAME;
     }
 
     @NotNull
