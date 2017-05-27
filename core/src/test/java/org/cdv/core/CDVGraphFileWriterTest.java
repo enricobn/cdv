@@ -19,8 +19,8 @@ public class CDVGraphFileWriterTest {
         CDVGraphFileWriter writer = new CDVGraphFileWriter();
 
         final Set<CDVModule> modules = new HashSet<>();
-        modules.add(new CDVModuleImpl("org.alviews.Module1"));
-        modules.add(new CDVModuleImpl("org.alviews.ui.Module2"));
+        modules.add(new CDVModuleImpl("org.cdv.Module1"));
+        modules.add(new CDVModuleImpl("org.cdv.ui.Module2"));
 
         CDVGraph graph = new CDVGraph() {
             @Override

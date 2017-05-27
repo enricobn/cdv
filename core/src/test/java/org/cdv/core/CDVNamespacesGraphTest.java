@@ -1,19 +1,19 @@
 package org.cdv.core;
 
-import junit.framework.TestCase;
 import org.junit.Test;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
  * Created by enrico on 3/21/16.
  */
-public class CDVNamespacesGraphTest extends TestCase {
+public class CDVNamespacesGraphTest {
     @Test
     public void test() throws Exception {
         CDVGraph graph = mock(CDVGraph.class);

@@ -35,7 +35,7 @@ public class CDVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
     private final VirtualFile virtualFile;
     private final CDVSwingEditor panel;
     private final AtomicBoolean loaded = new AtomicBoolean(false);
-    private final Document document;
+    private final @NotNull Document document;
     private final MyVirtualFileAdapter virtualFileListener;
     private final MyDocumentAdapter documentListener;
     private volatile boolean loading;
@@ -54,10 +54,12 @@ public class CDVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
                 new CDVIDEAFileSaveChooser(project),
                 new CDVJavaIDEANamespaceNavigator(project),
                 false);
-        document = FileDocumentManager.getInstance().getDocument(virtualFile);
-        if (document == null) {
+        Document nullableDocument = FileDocumentManager.getInstance().getDocument(virtualFile);
+        if (nullableDocument == null) {
             throw new IllegalStateException("Cannot find document for " + virtualFile);
         }
+
+        document = nullableDocument;
 
         documentListener = new MyDocumentAdapter();
         document.addDocumentListener(documentListener);
@@ -216,9 +218,7 @@ public class CDVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
             VirtualFileManager.getInstance().removeVirtualFileListener(virtualFileListener);
         }
 
-        if (document != null) {
-            document.removeDocumentListener(documentListener);
-        }
+        document.removeDocumentListener(documentListener);
     }
 
     @Nullable

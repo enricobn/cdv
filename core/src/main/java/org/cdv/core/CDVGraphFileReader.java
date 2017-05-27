@@ -30,7 +30,7 @@ public class CDVGraphFileReader {
 
         for (int i = 0; i < modulesList.getLength(); i++) {
             Element element = (Element) modulesList.item(i);
-            modules.add(new CDVModuleImpl(element.getAttribute(CDVGraphFileWriter.FULLNAME_ATTRIBUTE)));
+            modules.add(new CDVModuleImpl(element.getAttribute(CDVGraphFileWriter.FULL_NAME_ATTRIBUTE)));
         }
 
         return new CDVGraph() {

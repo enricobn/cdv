@@ -19,10 +19,10 @@ import java.util.regex.Pattern;
 @State(name = "AVConfiguration", storages = {@com.intellij.openapi.components.Storage(file = "$WORKSPACE_FILE$")})
 public final class CDVConfiguration implements PersistentStateComponent<CDVConfiguration.State> {
     public static class State {
+        private final List<Pattern> includesPatterns = new ArrayList<>();
+        private final List<Pattern> excludesPatterns = new ArrayList<>();
         private List<String> includes = new ArrayList<>();
         private List<String> excludes = new ArrayList<>();
-        private List<Pattern> includesPatterns = new ArrayList<>();
-        private List<Pattern> excludesPatterns = new ArrayList<>();
 
         public State() {
             List<String> excludes = new ArrayList<>();

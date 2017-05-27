@@ -21,7 +21,6 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.List;
 
@@ -220,7 +219,7 @@ public class CDVSwingGraph implements CDVGraph {
                 }
 
                 if (!dependencies.isEmpty()) {
-                    final List<CDVModule> depModules = new ArrayList<CDVModule>();
+                    final List<CDVModule> depModules = new ArrayList<>();
                     for (final CDVModuleDependency dep : dependencies) {
                         depModules.add(dep.getModule());
                     }

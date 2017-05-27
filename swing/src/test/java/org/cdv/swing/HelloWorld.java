@@ -16,9 +16,6 @@ import java.util.Set;
 public class HelloWorld extends JFrame
 {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -2707712944901661771L;
 
     public HelloWorld()
@@ -96,10 +93,10 @@ public class HelloWorld extends JFrame
             super(fullName);
         }
 
-        private CDVModuleDummy(String fullName, CDVModule[] deps) {
+        private CDVModuleDummy(String fullName, CDVModule[] dependencies) {
             super(fullName);
-            for (CDVModule dep : deps) {
-                dependencies.add(new CDVModuleDependencyDummy(dep));
+            for (CDVModule dependency : dependencies) {
+                this.dependencies.add(new CDVModuleDependencyDummy(dependency));
             }
         }
 

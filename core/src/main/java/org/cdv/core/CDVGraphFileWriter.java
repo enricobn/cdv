@@ -23,7 +23,7 @@ public class CDVGraphFileWriter {
     public static final String ROOT_ELEMENT_NAME = "graph";
     public static final String MODULES_ELEMENT = "modules";
     public static final String MODULE_ELEMENT = "module";
-    public static final String FULLNAME_ATTRIBUTE = "fullName";
+    public static final String FULL_NAME_ATTRIBUTE = "fullName";
     public static final String VERSION_ATTRIBUTE = "version";
 
     public void write(CDVGraph graph, OutputStream os) throws Exception {
@@ -49,7 +49,7 @@ public class CDVGraphFileWriter {
 
         for (CDVModule module : sortedModules) {
             Element element = doc.createElement(MODULE_ELEMENT);
-            element.setAttribute(FULLNAME_ATTRIBUTE, module.getFullName());
+            element.setAttribute(FULL_NAME_ATTRIBUTE, module.getFullName());
             modules.appendChild(element);
         }
 
