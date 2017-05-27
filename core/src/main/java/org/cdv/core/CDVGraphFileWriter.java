@@ -13,8 +13,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
-import java.util.Collections;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by enrico on 3/9/16.
@@ -40,7 +39,15 @@ public class CDVGraphFileWriter {
         Element modules = doc.createElement(MODULES_ELEMENT);
         rootElement.appendChild(modules);
 
-        for (CDVModule module : graph.getModules()) {
+        List<CDVModule> sortedModules = new ArrayList<>(graph.getModules());
+        Collections.sort(sortedModules, new Comparator<CDVModule>() {
+            @Override
+            public int compare(CDVModule o1, CDVModule o2) {
+                return o1.getFullName().compareTo(o2.getFullName());
+            }
+        });
+
+        for (CDVModule module : sortedModules) {
             Element element = doc.createElement(MODULE_ELEMENT);
             element.setAttribute(FULLNAME_ATTRIBUTE, module.getFullName());
             modules.appendChild(element);

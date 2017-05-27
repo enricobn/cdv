@@ -19,10 +19,7 @@ import org.cdv.core.CDVGraph;
 import org.cdv.core.CDVGraphFileReader;
 import org.cdv.core.CDVGraphFileWriter;
 import org.cdv.core.CDVModule;
-import org.cdv.intellij.core.CDVJavIdeaModuleTypeProvider;
-import org.cdv.intellij.core.CDVJavaIDEADependenciesFinder;
-import org.cdv.intellij.core.CDVJavaIDEAModuleNavigator;
-import org.cdv.intellij.core.CDVJavaIDEANamespaceNavigator;
+import org.cdv.intellij.core.*;
 import org.cdv.intellij.ui.CDVIDEAFileSaveChooser;
 import org.cdv.intellij.ui.CDVJavaIDEAModuleChooser;
 import org.cdv.swing.CDVComponentListener;
@@ -90,30 +87,25 @@ public class CDVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
     }
 
     private void saveDocument() {
-            WriteCommandAction.runWriteCommandAction(project, new Runnable() {
-                @Override
-                public void run() {
-                    CommandProcessor.getInstance().executeCommand(project, new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                ByteArrayOutputStream os = new ByteArrayOutputStream();
-                                writer.write(panel.getGraph(), os);
-                                os.close();
-                                document.setText(os.toString("UTF-8"));
+        CDVIDEAUtils.runUndoableWriteActionCommand(project, new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ByteArrayOutputStream os = new ByteArrayOutputStream();
+                    writer.write(panel.getGraph(), os);
+                    os.close();
+                    document.setText(os.toString("UTF-8"));
 //                                saving = true;
 //                                try {
 //                                    FileDocumentManager.getInstance().saveDocument(document);
 //                                } finally {
 //                                    saving = false;
 //                                }
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                    }, "save", CDVIDEAFileEditor.this);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
                 }
-            });
+            }
+        }, "save", CDVIDEAFileEditor.this);
     }
 
     private void loadFile() {
@@ -275,24 +267,18 @@ public class CDVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
                     (event.getRequestor() == null || !(event.getRequestor() instanceof CDVIDEAFileEditor))) {
                 try (final InputStream inputStream = virtualFile.getInputStream()) {
                     final String text = IOUtils.toString(inputStream, "UTF-8");
-                    WriteCommandAction.runWriteCommandAction(project, new Runnable() {
-                                @Override
-                                public void run() {
-                            CommandProcessor.getInstance().executeCommand(project, new Runnable() {
-                                @Override
-                                public void run() {
-                                    avoidWriteOnDisk = true;
-                                    try {
-                                        document.setText(text);
+                    CDVIDEAUtils.runUndoableWriteActionCommand(project, new Runnable() {
+                        @Override
+                        public void run() {
+                            avoidWriteOnDisk = true;
+                            try {
+                                document.setText(text);
 //                                        loadFile();
-                                    } finally {
-                                        avoidWriteOnDisk = false;
-                                    }
-                                }
-                            }, "save", CDVIDEAFileEditor.this);
-                                }
+                            } finally {
+                                avoidWriteOnDisk = false;
+                            }
                         }
-                    );
+                    }, "save", CDVIDEAFileEditor.this);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

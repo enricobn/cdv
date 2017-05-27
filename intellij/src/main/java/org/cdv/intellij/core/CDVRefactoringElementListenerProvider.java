@@ -1,6 +1,5 @@
 package org.cdv.intellij.core;
 
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.diagnostic.Logger;
@@ -88,30 +87,20 @@ public class CDVRefactoringElementListenerProvider implements RefactoringElement
                     }
                 };
 
-//                ApplicationManager.getApplication().invokeLater(new Runnable() {
-//                    @Override
-//                    public void run() {
-                        WriteCommandAction.runWriteCommandAction(project, new Runnable() {
-                            @Override
-                            public void run() {
-                                CommandProcessor.getInstance().executeCommand(project, new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        try {
-                                            Document document = FileDocumentManager.getInstance().getDocument(cdv);
-                                            ByteArrayOutputStream os = new ByteArrayOutputStream();
-                                            writer.write(newGraph, os);
-                                            os.close();
-                                            document.setText(os.toString("UTF-8"));
-                                        } catch (Exception e) {
-                                            throw new RuntimeException(e);
-                                        }
-                                    }
-                                }, "save", CDVRefactoringElementListenerProvider.this);
-                            }
-                        });
-//                    }
-//                });
+                CDVIDEAUtils.runUndoableWriteActionCommand(project, new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Document document = FileDocumentManager.getInstance().getDocument(cdv);
+                            ByteArrayOutputStream os = new ByteArrayOutputStream();
+                            writer.write(newGraph, os);
+                            os.close();
+                            document.setText(os.toString("UTF-8"));
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }, "save", CDVRefactoringElementListenerProvider.this);
             }
         }
     }
