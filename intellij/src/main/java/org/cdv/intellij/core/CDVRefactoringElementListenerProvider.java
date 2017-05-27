@@ -1,7 +1,5 @@
 package org.cdv.intellij.core;
 
-import com.intellij.openapi.command.CommandProcessor;
-import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -27,7 +25,6 @@ import java.util.Set;
 public class CDVRefactoringElementListenerProvider implements RefactoringElementListenerProvider {
     private static final Logger LOGGER = Logger.getInstance(CDVRefactoringElementListenerProvider.class);
     private static final CDVGraphFileReader reader = new CDVGraphFileReader();
-    private static final CDVGraphFileWriter writer = new CDVGraphFileWriter();
 
     @Nullable
     @Override
@@ -92,10 +89,8 @@ public class CDVRefactoringElementListenerProvider implements RefactoringElement
                     public void run() {
                         try {
                             Document document = FileDocumentManager.getInstance().getDocument(cdv);
-                            ByteArrayOutputStream os = new ByteArrayOutputStream();
-                            writer.write(newGraph, os);
-                            os.close();
-                            document.setText(os.toString("UTF-8"));
+                            String text = CDVGraphUtils.toString(newGraph);
+                            document.setText(text);
                         } catch (Exception e) {
                             throw new RuntimeException(e);
                         }
@@ -104,5 +99,6 @@ public class CDVRefactoringElementListenerProvider implements RefactoringElement
             }
         }
     }
+
 
 }

@@ -3,8 +3,6 @@ package org.cdv.intellij.ui.editor;
 import com.intellij.codeHighlighting.BackgroundEditorHighlighter;
 import com.intellij.ide.structureView.StructureViewBuilder;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.command.CommandProcessor;
-import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.components.SettingsSavingComponent;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.event.DocumentAdapter;
@@ -15,10 +13,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.*;
 import org.apache.commons.io.IOUtils;
-import org.cdv.core.CDVGraph;
-import org.cdv.core.CDVGraphFileReader;
-import org.cdv.core.CDVGraphFileWriter;
-import org.cdv.core.CDVModule;
+import org.cdv.core.*;
 import org.cdv.intellij.core.*;
 import org.cdv.intellij.ui.CDVIDEAFileSaveChooser;
 import org.cdv.intellij.ui.CDVJavaIDEAModuleChooser;
@@ -30,7 +25,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.beans.PropertyChangeListener;
 import java.io.*;
-import java.nio.charset.Charset;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -40,20 +34,17 @@ public class CDVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
     private final Project project;
     private final VirtualFile virtualFile;
     private final CDVSwingEditor panel;
-    private final CDVGraphFileWriter writer;
     private final AtomicBoolean loaded = new AtomicBoolean(false);
+    private final Document document;
+    private final MyVirtualFileAdapter virtualFileListener;
+    private final MyDocumentAdapter documentListener;
     private volatile boolean loading;
     private volatile boolean saving;
     private volatile boolean avoidWriteOnDisk;
-    private MyVirtualFileAdapter virtualFileListener;
-    private Document document;
-    private MyDocumentAdapter documentListener;
 
     public CDVIDEAFileEditor(final Project project, final VirtualFile virtualFile) {
         this.project = project;
         this.virtualFile = virtualFile;
-
-        this.writer = new CDVGraphFileWriter();
 
         this.panel = new CDVSwingEditor(
                 new CDVJavaIDEAModuleChooser(project),
@@ -63,10 +54,6 @@ public class CDVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
                 new CDVIDEAFileSaveChooser(project),
                 new CDVJavaIDEANamespaceNavigator(project),
                 false);
-        loadDocument(virtualFile);
-    }
-
-    private void loadDocument(VirtualFile virtualFile) {
         document = FileDocumentManager.getInstance().getDocument(virtualFile);
         if (document == null) {
             throw new IllegalStateException("Cannot find document for " + virtualFile);
@@ -91,10 +78,8 @@ public class CDVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
             @Override
             public void run() {
                 try {
-                    ByteArrayOutputStream os = new ByteArrayOutputStream();
-                    writer.write(panel.getGraph(), os);
-                    os.close();
-                    document.setText(os.toString("UTF-8"));
+                    String text = CDVGraphUtils.toString(panel.getGraph());
+                    document.setText(text);
 //                                saving = true;
 //                                try {
 //                                    FileDocumentManager.getInstance().saveDocument(document);
@@ -116,10 +101,8 @@ public class CDVIDEAFileEditor implements FileEditor,SettingsSavingComponent {
                 try {
                     loading = true;
                     panel.clear();
-                    CDVGraphFileReader reader = new CDVGraphFileReader();
-
-                    try (InputStream inputStream = new ByteArrayInputStream(document.getText().getBytes(Charset.forName("UTF-8")))) {
-                        final CDVGraph graph = reader.read(inputStream);
+                    try {
+                        final CDVGraph graph = CDVGraphUtils.fromString(document.getText());
                         panel.addModules(graph.getModules());
                     } catch (Exception e) {
                         // TODO something better in Intellij?
