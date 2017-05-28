@@ -1,7 +1,13 @@
+plugins {
+    id "com.github.hierynomus.license" version "0.14.0"
+}
+
 version = '1.0.0-SNAPSHOT'
 
 subprojects {
     apply plugin: 'java'
+
+    apply plugin: "license"
     
     group = 'org.cdv'
     
@@ -31,4 +37,14 @@ subprojects {
         }
     }
 
+    license {
+        header rootProject.file('LICENSE_HEADER.txt')
+        strictCheck true
+
+        mapping {
+            java='SLASHSTAR_STYLE'
+        }
+    }
+
 }
+

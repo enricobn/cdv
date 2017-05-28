@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2017 Enrico Benedetti
+ *
+ * This file is part of Class dependency viewer (CDV).
+ *
+ * CDV is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * CDV is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with CDV.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.cdv.core;
 
 import org.apache.commons.io.IOUtils;
@@ -15,16 +33,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.util.*;
 
-/**
- * Created by enrico on 3/9/16.
- */
 public class CDVGraphFileWriter {
-    public static final String VERSION = "1.0.0";
-    public static final String ROOT_ELEMENT_NAME = "graph";
-    public static final String MODULES_ELEMENT = "modules";
-    public static final String MODULE_ELEMENT = "module";
-    public static final String FULL_NAME_ATTRIBUTE = "fullName";
-    public static final String VERSION_ATTRIBUTE = "version";
+    static final String MODULE_ELEMENT = "module";
+    static final String FULL_NAME_ATTRIBUTE = "fullName";
+    private static final String VERSION = "1.0.0";
+    private static final String ROOT_ELEMENT_NAME = "graph";
+    private static final String MODULES_ELEMENT = "modules";
+    private static final String VERSION_ATTRIBUTE = "version";
 
     public void write(CDVGraph graph, OutputStream os) throws Exception {
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
