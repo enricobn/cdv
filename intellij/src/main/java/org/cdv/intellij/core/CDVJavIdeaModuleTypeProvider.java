@@ -24,7 +24,8 @@ public class CDVJavIdeaModuleTypeProvider implements CDVModuleTypeProvider {
             if (psiClass.isInterface()) {
                 return CDVModuleType.Interface;
             }
+            return CDVModuleType.Class;
         }
-        return CDVModuleType.Class;
+        return CDVModuleType.Unknown;
     }
 }

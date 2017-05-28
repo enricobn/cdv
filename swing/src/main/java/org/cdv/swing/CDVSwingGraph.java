@@ -30,6 +30,7 @@ import java.util.List;
 public class CDVSwingGraph implements CDVGraph {
     private static final String INTERFACE_STYLE = "INTERFACE";
     private static final String CLASS_STYLE = "CLASS";
+    private static final String UNKNOWN_STYLE = "UNKNOWN";
     private static final String SELECTED_EDGE_STYLE = "SELECTED_EDGE";
     private final Set<CDVModule> modules = new HashSet<>();
     private final Collection<CDVComponentListener> listeners = new ArrayList<>();
@@ -102,6 +103,17 @@ public class CDVSwingGraph implements CDVGraph {
             style.put(mxConstants.STYLE_SPACING_TOP, 2);
             style.put(mxConstants.STYLE_STROKEWIDTH, 2);
             styleSheet.putCellStyle(CLASS_STYLE, style);
+        }
+
+        {
+            mxStylesheet styleSheet = graph.getStylesheet();
+            Hashtable<String, Object> style = new Hashtable<>();
+            style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_RECTANGLE);
+            style.put(mxConstants.STYLE_FONTSTYLE, mxConstants.FONT_BOLD);
+            style.put(mxConstants.STYLE_FONTCOLOR, "red");
+            style.put(mxConstants.STYLE_SPACING_TOP, 2);
+            style.put(mxConstants.STYLE_STROKEWIDTH, 2);
+            styleSheet.putCellStyle(UNKNOWN_STYLE, style);
         }
 
         {
@@ -314,8 +326,10 @@ public class CDVSwingGraph implements CDVGraph {
             String style;
             if (CDVModuleType.Interface == typeProvider.getType(module)) {
                 style = INTERFACE_STYLE;
-            } else {
+            } else if (CDVModuleType.Class== typeProvider.getType(module)) {
                 style = CLASS_STYLE;
+            } else {
+                style = UNKNOWN_STYLE;
             }
 
             Object v1 = graph.insertVertex(parent, null, module, x, y, adv + 20, 30, style);

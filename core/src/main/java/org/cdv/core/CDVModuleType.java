@@ -5,5 +5,6 @@ package org.cdv.core;
  */
 public enum CDVModuleType {
     Interface,
-    Class
+    Class,
+    Unknown
 }
