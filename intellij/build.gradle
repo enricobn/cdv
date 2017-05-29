@@ -17,7 +17,7 @@ intellij {
     //plugins 'coverage'
     pluginName 'CDV'
 
-    // until build left open
+    // "until build" left open
     updateSinceUntilBuild false
 
 /*    publish {

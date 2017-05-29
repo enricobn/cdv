@@ -21,12 +21,11 @@
 <idea-plugin>
   <id>org.cdv.intellij</id>
   <name>CDV</name>
-  <version>1.0.0</version>
   <!--vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor-->
 
   <description><![CDATA[
       Class dependency viewer (CDV).<br>
-      A plugin to show dependencies between classes or between packages.
+      A plugin to show class dependencies.
     ]]></description>
 
   <change-notes><![CDATA[

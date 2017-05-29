@@ -2,7 +2,7 @@ plugins {
     id "com.github.hierynomus.license" version "0.14.0"
 }
 
-version = '1.0.0-SNAPSHOT'
+version = '1.0.0'
 
 subprojects {
     apply plugin: 'java'
@@ -12,6 +12,8 @@ subprojects {
     group = 'org.cdv'
     
     sourceCompatibility = '1.7'
+
+    version = rootProject.version
 
     repositories {
         mavenCentral()
